@@ -1,0 +1,20 @@
+<br />
+<div *ngIf="results.length == 0">
+    <form [formGroup]="textAnalyseForm" (ngSubmit)="analyse()">
+        <mat-form-field>
+            <textarea formControlName="textAnalyse" matInput rows="20"
+                placeholder="Enter text to analyse..."></textarea>
+        </mat-form-field>
+        <button (click)="clear()">clear</button>
+        <button type="submit">analyse</button>
+    </form>
+</div>
+<div *ngIf="results.length > 0">
+    <span *ngFor="let result of results">
+        <a *ngIf="result.lemma && result.pos" (click)="getWordNet(result.name, result.pos, result.lemma)">{{result.name}}</a>
+        <span *ngIf="result.lemma && result.pos">&nbsp;</span>
+        <span *ngIf="!result.lemma">{{result.name}} </span>
+    </span>
+    <br/>
+    <button (click)="clear()">clear</button>
+</div>
