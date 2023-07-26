@@ -19,4 +19,7 @@ h1 {
   nav a.active {
     background-color: black;
   }
+  nav {
+    text-align: center;
+  }
   

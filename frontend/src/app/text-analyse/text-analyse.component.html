@@ -1,4 +1,4 @@
-<br />
+<h2>Analyse Text</h2>
 <div *ngIf="results.length == 0">
     <form [formGroup]="textAnalyseForm" (ngSubmit)="analyse()">
         <mat-form-field>
@@ -10,11 +10,6 @@
     </form>
 </div>
 <div *ngIf="results.length > 0">
-    <span *ngFor="let result of results">
-        <a *ngIf="result.lemma && result.pos" (click)="getWordNet(result.name, result.pos, result.lemma)">{{result.name}}</a>
-        <span *ngIf="result.lemma && result.pos">&nbsp;</span>
-        <span *ngIf="!result.lemma">{{result.name}} </span>
-    </span>
-    <br/>
+    <app-text-analyse-result [results]="results" [text]="text"></app-text-analyse-result>
     <button (click)="clear()">clear</button>
 </div>

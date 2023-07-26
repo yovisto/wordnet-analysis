@@ -33,8 +33,25 @@ export class SearchComponent implements AfterViewInit {
     const result = { ...this.imageParams };
     const synsetId = wordKey.split('.').reverse();
     synsetId.pop();
-    result.synsetId = synsetId.join('-');    
+    result.synsetId = synsetId.join('-');
     return result;
+  }
+
+  setInputParams(inputParams: InputParams): void {
+    this.inputParams = inputParams
+    this.refreshView();
+  }
+
+  refreshView(): void {
+    if (this.inputParams.lemma) {
+      this.title = `${this.inputParams.lemma}(${this.inputParams.pos})`
+    }
+    else if (this.inputParams.woi) {
+      this.title = this.inputParams.woi;
+    }
+    
+    this.search();
+    this.cd.detectChanges();
   }
 
   back(): void {
@@ -48,12 +65,12 @@ export class SearchComponent implements AfterViewInit {
 
   getWords(word: Word | WeightedWord, category: string): void {
     this.inputParamsHistory.push([this.inputParams, this.title]);
-    this.title = `${category}: ${word.name}(${word.pos}) - ${this.inputParams.lang}`;
+    this.title = `${category}: ${word.name}(${word.pos})`;
     this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, category: category });
     this.search(false);
   }
 
-  private process_results(results: (Word | WeightedWord)[]): void {    
+  private process_results(results: (Word | WeightedWord)[]): void {
     this.words = results;
     if (this.words.length > 0) {
       const fileName = `hierarchy_partwhole${Date.now()}${['de'].join('_')}_2_5_1`;
@@ -81,10 +98,10 @@ export class SearchComponent implements AfterViewInit {
   private search(allowGetWeighted: boolean = true): void {
     this.fromText && allowGetWeighted ?
       this.wordnetService.getWeightedWords(this.inputParams, this.fromText)
-        .subscribe((results: WeightedWord[]) => {  
-          results = results.sort((a, b) => {            
-              return b.weight - a.weight;            
-          })        
+        .subscribe((results: WeightedWord[]) => {
+          results = results.sort((a, b) => {
+            return b.weight - a.weight;
+          })
           this.process_results(results);
         }) :
       this.wordnetService.getWords(this.inputParams)
@@ -95,9 +112,7 @@ export class SearchComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.inputParams) {
-      this.title = `${this.inputParams.lemma}(${this.inputParams.pos}) - ${this.inputParams.lang}`;
-      this.search();
-      this.cd.detectChanges();
+      this.refreshView();
     }
   }
 

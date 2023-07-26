@@ -1,0 +1,8 @@
+<p *ngIf="results.length > 0">
+    <span *ngFor="let result of results">
+        <a *ngIf="result.lemma && result.pos" (click)="getWordNet(result.name, result.pos, result.lemma)">{{result.name}}</a>
+        <span *ngIf="result.lemma && result.pos">&nbsp;</span>
+        <span *ngIf="!result.lemma">{{result.name}} </span>
+    </span>
+    <br/>    
+</p>

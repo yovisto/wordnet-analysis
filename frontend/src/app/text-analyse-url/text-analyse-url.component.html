@@ -1,0 +1,13 @@
+<h2>Analyse Url</h2>
+<div *ngIf="!results">    
+    <form [formGroup]="textAnalyseForm" (ngSubmit)="analyse()">
+        <input formControlName="url"  placeholder="Type url">                                 
+        <button (click)="clear()">clear</button>
+        <button type="submit">analyse</button>                                                              
+    </form>     
+</div>
+<div *ngIf="results">
+    <app-text-analyse-result [results]="results.contextWords" [text]="results.text"></app-text-analyse-result>            
+    <button (click)="clear()">clear</button>
+</div>
+

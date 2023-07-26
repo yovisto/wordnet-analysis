@@ -19,6 +19,9 @@ import { SearchComponentDlgWrapperComponent } from './search-component-dlg-wrapp
 
 
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
+import { TextAnalyseUrlComponent } from './text-analyse-url/text-analyse-url.component';
+import { SearchWrapperComponent } from './search-wrapper/search-wrapper.component';
+import { TextAnalyseResultComponent } from './text-analyse-result/text-analyse-result.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +29,10 @@ import { ImageViewerComponent } from './image-viewer/image-viewer.component';
     TextAnalyseComponent,
     SearchComponent,
     SearchComponentDlgWrapperComponent,
-    ImageViewerComponent
+    ImageViewerComponent,
+    TextAnalyseUrlComponent,
+    SearchWrapperComponent,
+    TextAnalyseResultComponent
   ],
   imports: [    
     BrowserModule,
@@ -39,7 +45,9 @@ import { ImageViewerComponent } from './image-viewer/image-viewer.component';
     MatExpansionModule,
     MatCardModule,
     MatDialogModule,   
-    MatIconModule
+    MatIconModule,
+    
+    
   ],
   bootstrap: [AppComponent],
   providers: [importProvidersFrom([BrowserAnimationsModule])]

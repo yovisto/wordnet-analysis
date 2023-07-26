@@ -58,7 +58,7 @@ export class ImageViewerComponent implements OnInit {
   }
 
   private loadImage(): void {
-    if (this.imageParams) {
+    if (this.imageParams && this.imageParams.synsetId) {
       this.imageParams.fileName = `hierarchy_partwhole${Date.now()}${['de'].join('_')}_${this.imageParams.level}_${this.imageParams.maxLeafNodes}${this.imageParams.synonymCount}`;                    
       this.wordnetService.getImage(this.imageParams).subscribe((imageStr: string) => {
         this.imageSrc = imageStr;
@@ -76,12 +76,12 @@ export class ImageViewerComponent implements OnInit {
       this.imageParams = {
         fileName: params["fileName"] as string,
         synsetId: params["synsetId"] as string,
-        level: parseInt(params["level"]),
-        maxLeafNodes: parseInt(params["maxLeafNodes"]),
-        synonymCount: parseInt(params["synonymCount"]),
-        filterLangs: params["filterLangs"] as string,
-        partWhole: params["partWhole"] as string,
-        hierarchy: params["hierarchy"] as string
+        level: params["level"] ? parseInt(params["level"]): 2,
+        maxLeafNodes: params["maxLeafNodes"] ? parseInt(params["maxLeafNodes"]): 5,
+        synonymCount: params["synonymCount"] ? parseInt(params["synonymCount"]): 1,
+        filterLangs: params["filterLangs"] ? params["filterLangs"] as string: 'de',
+        partWhole: params["partWhole"] ? params["partWhole"] as string: "True",
+        hierarchy: params["hierarchy"] ? params["hierarchy"] as string: "True"
       };
       this.loadImage();
       

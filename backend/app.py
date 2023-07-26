@@ -13,11 +13,15 @@ import nltk
 from encoders.WordEncoder import WordEncoder
 from helpers.SynsetClassifier import SynsetClassifier
 from helpers.TextProcessor import TextProcessor
+from models.ContextWordWrapper import ContextWordWrapper
 from models.WeightedWord import WeightedWord
 
 from helpers.FactoryMethods import FactoryMethods
 from helpers.Constants import VALID_EU_LANGS
 from imageCreation.CombinedImageWrapper import main
+from bs4 import BeautifulSoup
+import requests
+import re
 
 
 app = Flask(__name__)
@@ -121,11 +125,11 @@ def tokenizeParagraph():
     paragraph = unquote(paragraph)
     return Response(WordEncoder().encode(nltk.sent_tokenize(paragraph)), mimetype='application/json')
 
-@app.route('/api/shared/tokenize/word/', methods=['GET'])
+@app.route('/api/shared/tokenize/word/', methods=['POST'])
 @cross_origin()
 def tokenizeSentence():    
-    lang = request.args['lang'] if 'lang' in request.args else None
-    sent = request.args['sent'] if 'sent' in request.args else None
+    lang = request.json['lang']
+    sent = request.json['sent']
     if None in [lang, sent]:
         message = "Invalid argument list: 'lang' and 'sent' required"
         return Response(response='{"message":"' + message + '"}', status=404, mimetype="application/json")
@@ -133,5 +137,50 @@ def tokenizeSentence():
     sent = unquote(sent)
     txtProcessor = TextProcessor()            
     return Response(WordEncoder().encode(txtProcessor.tokenizeSentence(sent, lang)), mimetype='application/json')
+
+@app.route('/api/shared/tokenize/url/', methods=['POST'])
+@cross_origin()
+def tokenizeUrl():    
+    def returnError(url, status_code, msg):
+        message = f"Failed to parse url: {url} - {msg}"
+        return Response(response='{"message":"' + message + '"}', status=status_code, mimetype="application/json")
+    def visible(element):
+        if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+            return False
+        elif re.match(r'<!--.*-->', str(element)):
+            return False
+        return True
+    
+    lang = request.json['lang']
+    url = request.json['url']
+    if None in [lang, url]:
+        message = "Invalid argument list: 'lang' and 'url' required"
+        return Response(response='{"message":"' + message + '"}', status=404, mimetype="application/json")
+
+    try:    
+       
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')                        
+            visible_text = soup.findAll(text=True)
+            visible_text = filter(visible, visible_text)
+            text = " ".join(visible_text)
+            
+        else:
+            returnError(url, response.status_code, '')
+
+        text = unquote(text)
+        result = ContextWordWrapper()
+        txtProcessor = TextProcessor()               
+        result.text = text
+        result.contextWords = txtProcessor.tokenizeSentence(text, lang)
+        return Response(WordEncoder().encode(result), mimetype='application/json')
+
+    except requests.RequestException as e:
+        returnError(url, 500, e)
+
+    
+
 
 
