@@ -1,17 +1,17 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
-import { WordnetService } from '../services/wordnet.service';
-import { Word } from '../models/word'
-import { InputParams } from '../models/input-params';
-import { Observable } from 'rxjs';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { ImageInputParams } from '../models/image-input-params';
+import { InputParams } from '../models/input-params';
 import { WeightedWord } from '../models/weighted-word';
+import { Word } from '../models/word';
+import { WordnetService } from '../services/wordnet.service';
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css']
 })
-export class SearchComponent implements AfterViewInit {
+export class SearchComponent implements AfterViewInit, OnDestroy {
 
   @Input() inputParams!: InputParams;
   @Input() fromText!: string;
@@ -21,6 +21,9 @@ export class SearchComponent implements AfterViewInit {
   imageParams!: ImageInputParams;
   title!: string;
   inputParamsHistory: Array<[InputParams, string]> = new Array<[InputParams, string]>;
+  loading: boolean = false;
+
+  private onDestroy$: Subject<void> = new Subject<void>();
 
   constructor(
     private wordnetService: WordnetService,
@@ -49,7 +52,7 @@ export class SearchComponent implements AfterViewInit {
     else if (this.inputParams.woi) {
       this.title = this.inputParams.woi;
     }
-    
+
     this.search();
     this.cd.detectChanges();
   }
@@ -96,17 +99,25 @@ export class SearchComponent implements AfterViewInit {
   }
 
   private search(allowGetWeighted: boolean = true): void {
-    this.fromText && allowGetWeighted ?
+    this.loading = true;
+    this.fromText && allowGetWeighted && this.fromText.split(' ').length < 1000 ?
       this.wordnetService.getWeightedWords(this.inputParams, this.fromText)
-        .subscribe((results: WeightedWord[]) => {
-          results = results.sort((a, b) => {
-            return b.weight - a.weight;
-          })
-          this.process_results(results);
+        .pipe(takeUntil(this.onDestroy$))
+        .subscribe({
+          next: (results: WeightedWord[]) => {
+            results = results.sort((a, b) => {
+              return b.weight - a.weight;
+            })
+            this.process_results(results);
+          },
+          complete: () => this.loading = false
         }) :
       this.wordnetService.getWords(this.inputParams)
-        .subscribe((results: Word[]) => {
-          this.process_results(results);
+        .subscribe({
+          next: (results: Word[]) => {
+            this.process_results(results);
+          },
+          complete: () => this.loading = false
         });
   }
 
@@ -116,8 +127,21 @@ export class SearchComponent implements AfterViewInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
+
   onGetExamples(word: Word): void {
-    this.wordnetService.getExampleSentences(word.wordKey).subscribe(examples => console.log(examples))
+    this.loading = true;
+    this.wordnetService.getExampleSentences(word.wordKey)
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe({
+        next: (examples: string[]) => {
+          console.log(examples)
+        },          
+        complete: () => this.loading = false
+      });               
   }
 
 }

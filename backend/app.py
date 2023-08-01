@@ -13,16 +13,16 @@ import nltk
 from encoders.WordEncoder import WordEncoder
 from helpers.SynsetClassifier import SynsetClassifier
 from helpers.TextProcessor import TextProcessor
+from models.ContextWord import ContextWord
 from models.ContextWordWrapper import ContextWordWrapper
 from models.WeightedWord import WeightedWord
 
-from helpers.FactoryMethods import FactoryMethods
-from helpers.Constants import VALID_EU_LANGS
+from helpers.CommonHelper import CommonHelper
 from imageCreation.CombinedImageWrapper import main
 from bs4 import BeautifulSoup
 import requests
 import re
-
+from rdflib.namespace import _SKOS, _RDFS
 
 app = Flask(__name__)
 
@@ -86,7 +86,6 @@ def weightedWords():
             param.category = 'hypernym'
             hypernyms = dict.findWords(param)
 
-
             hypernyms_flat = [item for sublist in [x.synonyms for x in hypernyms] for item in sublist]
             result.weight = weight_classifier.classify(result.synonyms, list(set(hypernyms_flat)))
             results.append(result)
@@ -136,7 +135,29 @@ def tokenizeSentence():
 
     sent = unquote(sent)
     txtProcessor = TextProcessor()            
-    return Response(WordEncoder().encode(txtProcessor.tokenizeSentence(sent, lang)), mimetype='application/json')
+    return Response(WordEncoder().encode([txtProcessor.tokenizeSentence(sent, lang)]), mimetype='application/json')
+
+def __get_rdf_response(url, lang):
+    accept_headers = ['application/rdf+xml', 'text/turtle', 'application/ld+json']
+    graph = CommonHelper.get_rdf_graph(url, accept_headers)
+    if graph:
+        result = ContextWordWrapper()
+        txtProcessor = TextProcessor()
+        for attrib in [_SKOS.SKOS.prefLabel, _RDFS.RDFS.label, _RDFS.RDFS.comment]:
+            text = CommonHelper.get_attribute_in_rdf_graph(graph, attrib, lang)
+            if text:
+                text = BeautifulSoup(text, 'html.parser')
+                text = text.get_text()                            
+                result.text += f' {text}'
+                contextWords = txtProcessor.tokenizeSentence(f': {text}', lang)        
+                rdf_word = ContextWord()
+                rdf_word.name = attrib
+                contextWords.insert(0, rdf_word)                
+                result.contextWords.append(contextWords)
+            result.is_rdf = True
+        return Response(WordEncoder().encode(result), mimetype='application/json')
+    
+    return None
 
 @app.route('/api/shared/tokenize/url/', methods=['POST'])
 @cross_origin()
@@ -157,10 +178,13 @@ def tokenizeUrl():
         message = "Invalid argument list: 'lang' and 'url' required"
         return Response(response='{"message":"' + message + '"}', status=404, mimetype="application/json")
 
-    try:    
-       
-        response = requests.get(url)
-        
+    rdf_response = __get_rdf_response(url, lang)
+    if rdf_response:
+        return rdf_response
+
+    try:           
+        response = requests.get(url)        
+        text = ''
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')                        
             visible_text = soup.findAll(text=True)
@@ -174,7 +198,7 @@ def tokenizeUrl():
         result = ContextWordWrapper()
         txtProcessor = TextProcessor()               
         result.text = text
-        result.contextWords = txtProcessor.tokenizeSentence(text, lang)
+        result.contextWords.append(txtProcessor.tokenizeSentence(text, lang))
         return Response(WordEncoder().encode(result), mimetype='application/json')
 
     except requests.RequestException as e:

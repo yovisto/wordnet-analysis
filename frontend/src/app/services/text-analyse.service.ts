@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable, catchError, of, tap } from 'rxjs';
-import { Word } from '../models/word';
 import { ContextWord } from '../models/context-word';
 import { ContextWordWrapper } from '../models/context-word-wrapper';
 
@@ -9,8 +8,7 @@ import { ContextWordWrapper } from '../models/context-word-wrapper';
   providedIn: 'root'
 })
 export class TextAnalyseService {
-
-  private wordnet_url = 'http://127.0.0.1:5000/api/dict/';  // URL to web api
+  
   private tokenize_text_url = 'http://127.0.0.1:5000/api/shared/tokenize/'
 
   httpOptions = {
@@ -25,12 +23,12 @@ export class TextAnalyseService {
 
   constructor(private http: HttpClient) { }
 
-  tokenizeText(sent: string, lang: string): Observable<ContextWord[]> {
-    return this.http.post<ContextWord[]>(`${this.tokenize_text_url}word/`, { lang, sent })
+  tokenizeText(sent: string, lang: string): Observable<Array<ContextWord[]>> {
+    return this.http.post<Array<ContextWord[]>>(`${this.tokenize_text_url}word/`, { lang, sent })
       .pipe(
         tap(_ => this.log('tokenized Text')),
-        catchError(this.handleError<ContextWord[]>('tokenizeText', []))
-      );    
+        catchError(this.handleError<Array<ContextWord[]>>('tokenizeText', []))
+      );
   }
 
   tokenizeTextFromUrl(url: string, lang: string): Observable<ContextWordWrapper> {
@@ -38,7 +36,7 @@ export class TextAnalyseService {
       .pipe(
         tap(_ => this.log('tokenized Text from Url')),
         catchError(this.handleError<ContextWordWrapper>('tokenizeTextFromUrl', undefined))
-      );    
+      );
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

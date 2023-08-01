@@ -2,15 +2,16 @@
     <span *ngIf="inputParamsHistory.length > 0">
         <a (click)="back()">
             <mat-icon>keyboard_arrow_left</mat-icon>
-        </a>        
+        </a>
     </span>
     {{title}}
 </h2>
-<div class="search-results">    
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<div *ngIf="!loading" class="search-results">
     <mat-accordion>
-        <mat-expansion-panel *ngFor="let word of words; first as isFirst" [expanded]="isFirst">        
+        <mat-expansion-panel *ngFor="let word of words; first as isFirst" [expanded]="isFirst">
             <mat-expansion-panel-header>
-                <mat-panel-title>                    
+                <mat-panel-title>
                     {{word.name}} ({{word.pos}})
                 </mat-panel-title>
                 <mat-panel-description title="{{word.definition}}">
@@ -27,10 +28,11 @@
                 <strong>Weight: </strong>{{word.weight}}
             </p>
             <span>
-                <a title="diagram" [routerLink]="['/image']" [queryParams]="getImageParams(word.wordKey)" target="_blank">
+                <a title="diagram" [routerLink]="['/image']" [queryParams]="getImageParams(word.wordKey)"
+                    target="_blank">
                     <mat-icon>photo</mat-icon>
                 </a>
-            </span>            
+            </span>
             <span *ngIf="word.linguisticCounter.hypernym > 0">
                 <a title="hypernyms: words with broader meaning" (click)="getWords(word, 'hypernym')">
                     <mat-icon>border_top</mat-icon>
@@ -50,12 +52,12 @@
                 <a title="meronyms: words that are part of this word" (click)="getWords(word, 'meronym')">
                     <mat-icon>border_right</mat-icon>
                 </a>
-            </span>            
+            </span>
             <span *ngIf="word.linguisticCounter.antonym > 0">
                 <a title="antonyms" (click)="getWords(word, 'antonym')">
                     <mat-icon>compare_arrows</mat-icon>
                 </a>
-            </span>            
+            </span>
             <span *ngIf="word.linguisticCounter.entailment > 0">
                 <a title="entailments" (click)="getWords(word, 'entailment')">
                     <mat-icon>arrow_forward</mat-icon>
@@ -75,10 +77,10 @@
                 <div>
                     <a [routerLink]="['/image']" [queryParams]="imageParams" target="_blank">
                         <img [src]="image">
-                    </a>                                        
+                    </a>
                 </div>
-            </div>            
+            </div>
         </mat-expansion-panel>
     </mat-accordion>
 </div>
-<div *ngIf="words.length == 0 && this.inputParams">No search results found</div>
+<div *ngIf="words.length == 0 && this.inputParams && !this.loading">No search results found</div>

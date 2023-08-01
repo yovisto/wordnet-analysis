@@ -1,15 +1,16 @@
-<h2>Analyse Text</h2>
-<div *ngIf="results.length == 0">
+<h2>Textanalyse</h2>
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<div *ngIf="results.length == 0 && !loading">
     <form [formGroup]="textAnalyseForm" (ngSubmit)="analyse()">
         <mat-form-field>
             <textarea formControlName="textAnalyse" matInput rows="20"
-                placeholder="Enter text to analyse..."></textarea>
+                placeholder="Zu analysierenden Text eingeben..."></textarea>
         </mat-form-field>
         <button (click)="clear()">clear</button>
         <button type="submit">analyse</button>
     </form>
 </div>
-<div *ngIf="results.length > 0">
+<div *ngIf="results.length > 0 && !loading">
     <app-text-analyse-result [results]="results" [text]="text"></app-text-analyse-result>
     <button (click)="clear()">clear</button>
 </div>

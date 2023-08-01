@@ -9,10 +9,10 @@ import { InputParams } from '../models/input-params';
   styleUrls: ['./search-component-dlg-wrapper.component.css']
 })
 export class SearchComponentDlgWrapperComponent {
-  
+
   @Input() inputParams!: InputParams;
   @Input() fromText!: string;
-  
+
   constructor(private dialogRef: MatDialogRef<SearchComponent>) {
 
   }

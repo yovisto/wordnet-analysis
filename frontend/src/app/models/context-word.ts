@@ -1,5 +1,5 @@
 import { BaseWord } from "./base-word";
 
-export interface ContextWord extends BaseWord {     
+export interface ContextWord extends BaseWord {
     lemma: string
 }

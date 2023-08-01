@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { ContextWord } from '../models/context-word';
 import { MatDialog } from '@angular/material/dialog';
+import { ContextWord } from '../models/context-word';
 import { SearchComponentDlgWrapperComponent } from '../search-component-dlg-wrapper/search-component-dlg-wrapper.component';
 
 @Component({
@@ -10,22 +10,22 @@ import { SearchComponentDlgWrapperComponent } from '../search-component-dlg-wrap
 })
 export class TextAnalyseResultComponent {
 
-  @Input() results!: ContextWord[];
+  @Input() results!: Array<ContextWord[]>;
   @Input() text!: string;
 
-  
+
   constructor(private dlg: MatDialog,) {
-      
+
   }
 
   getWordNet(woi: string, pos: string, lemma: string): void {
     const lang = 'de'
 
     const dialogRef = this.dlg.open(SearchComponentDlgWrapperComponent, {
-      width: '600px',      
-    });    
+      width: '600px',
+    });
     const instance = dialogRef.componentInstance;
-    instance.inputParams = Object.assign({woi: woi, pos: pos, lemma: lemma, lang: lang});    
+    instance.inputParams = Object.assign({ woi: woi, pos: pos, lemma: lemma, lang: lang });
     instance.fromText = this.text
   }
 }

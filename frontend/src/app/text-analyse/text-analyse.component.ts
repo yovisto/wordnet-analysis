@@ -1,26 +1,27 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { TextAnalyseService } from '../services/text-analyse.service';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject, takeUntil } from 'rxjs';
 import { ContextWord } from '../models/context-word';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { SearchComponent } from '../search/search.component';
-import { WordnetService } from '../services/wordnet.service';
-import { Word } from '../models/word';
 import { SearchComponentDlgWrapperComponent } from '../search-component-dlg-wrapper/search-component-dlg-wrapper.component';
+import { TextAnalyseService } from '../services/text-analyse.service';
 
 @Component({
   selector: 'app-text-analyse',
   templateUrl: './text-analyse.component.html',
   styleUrls: ['./text-analyse.component.css']
 })
-export class TextAnalyseComponent {
+export class TextAnalyseComponent implements OnDestroy {
 
   textAnalyseForm = new FormGroup({
     textAnalyse: new FormControl(''),
   });
 
-  results: ContextWord[] = [];
+  results: Array<ContextWord[]> = [];
   text!: string
+  loading: boolean = false;
+
+  private onDestroy$: Subject<void> = new Subject<void>();
 
   constructor(
     private dlg: MatDialog,
@@ -28,23 +29,33 @@ export class TextAnalyseComponent {
 
   }
 
-  analyse(): void {
-    const lang = 'ger';
-    this.text = this.textAnalyseForm.controls['textAnalyse'].value as string;
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
 
-    this.textAnalyseService.tokenizeText(this.text, lang).subscribe((results: ContextWord[]) => {
-      this.results = results;
-    });
+  analyse(): void {
+    const lang = 'de';
+    this.text = this.textAnalyseForm.controls['textAnalyse'].value as string;
+    this.loading = true;
+    this.textAnalyseService.tokenizeText(this.text, lang)
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe({
+        next: (results: Array<ContextWord[]>) => {
+          this.results = results;
+        },          
+        complete: () => this.loading = false
+      });   
   }
 
   getWordNet(woi: string, pos: string, lemma: string): void {
     const lang = 'de'
 
     const dialogRef = this.dlg.open(SearchComponentDlgWrapperComponent, {
-      width: '600px',      
-    });    
+      width: '600px',
+    });
     const instance = dialogRef.componentInstance;
-    instance.inputParams = Object.assign({woi: woi, pos: pos, lemma: lemma, lang: lang});    
+    instance.inputParams = Object.assign({ woi: woi, pos: pos, lemma: lemma, lang: lang });
     instance.fromText = this.text
   }
 

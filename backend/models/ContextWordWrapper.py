@@ -3,3 +3,4 @@ class ContextWordWrapper():
         super().__init__()          
         self.contextWords = []      
         self.text = ''
+        self.is_rdf = False

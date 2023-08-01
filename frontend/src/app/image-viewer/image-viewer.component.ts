@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { ImageInputParams } from '../models/image-input-params';
 import { WordnetService } from '../services/wordnet.service';
 
@@ -8,17 +9,20 @@ import { WordnetService } from '../services/wordnet.service';
   templateUrl: './image-viewer.component.html',
   styleUrls: ['./image-viewer.component.css']
 })
-export class ImageViewerComponent implements OnInit {
+export class ImageViewerComponent implements OnInit, OnDestroy {
 
   imageParams!: ImageInputParams;
   imageSrc!: string;
   imageMaximized: boolean = false;
+  loading: boolean = false;
+
+  private onDestroy$: Subject<void> = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private wordnetService: WordnetService,
     private cd: ChangeDetectorRef,
-    ) {
+  ) {
 
 
   }
@@ -32,7 +36,7 @@ export class ImageViewerComponent implements OnInit {
       }
       this.loadImage();
     }
-    
+
   }
 
   addMaxLeafNodes(count: number): void {
@@ -43,7 +47,7 @@ export class ImageViewerComponent implements OnInit {
       }
       this.loadImage();
     }
-    
+
   }
 
   addLevel(count: number): void {
@@ -54,40 +58,49 @@ export class ImageViewerComponent implements OnInit {
       }
       this.loadImage();
     }
-    
+
   }
 
   private loadImage(): void {
     if (this.imageParams && this.imageParams.synsetId) {
-      this.imageParams.fileName = `hierarchy_partwhole${Date.now()}${['de'].join('_')}_${this.imageParams.level}_${this.imageParams.maxLeafNodes}${this.imageParams.synonymCount}`;                    
-      this.wordnetService.getImage(this.imageParams).subscribe((imageStr: string) => {
-        this.imageSrc = imageStr;
-        this.cd.detectChanges();
-      });
-     
+      this.imageParams.fileName = `hierarchy_partwhole${Date.now()}${['de'].join('_')}_${this.imageParams.level}_${this.imageParams.maxLeafNodes}${this.imageParams.synonymCount}`;      
+      this.loading = true;
+      this.wordnetService.getImage(this.imageParams)        
+        .pipe(takeUntil(this.onDestroy$))
+        .subscribe({
+          next: (imageStr: string) => {
+            this.imageSrc = imageStr;
+            this.cd.detectChanges();
+          },          
+          complete: () => this.loading = false
+        });                
     }
-    
+
   }
-  
+
   ngOnInit(): void {
 
     this.route.queryParams.subscribe(params => {
-      
+
       this.imageParams = {
         fileName: params["fileName"] as string,
         synsetId: params["synsetId"] as string,
-        level: params["level"] ? parseInt(params["level"]): 2,
-        maxLeafNodes: params["maxLeafNodes"] ? parseInt(params["maxLeafNodes"]): 5,
-        synonymCount: params["synonymCount"] ? parseInt(params["synonymCount"]): 1,
-        filterLangs: params["filterLangs"] ? params["filterLangs"] as string: 'de',
-        partWhole: params["partWhole"] ? params["partWhole"] as string: "True",
-        hierarchy: params["hierarchy"] ? params["hierarchy"] as string: "True"
+        level: params["level"] ? parseInt(params["level"]) : 2,
+        maxLeafNodes: params["maxLeafNodes"] ? parseInt(params["maxLeafNodes"]) : 5,
+        synonymCount: params["synonymCount"] ? parseInt(params["synonymCount"]) : 1,
+        filterLangs: params["filterLangs"] ? params["filterLangs"] as string : 'de',
+        partWhole: params["partWhole"] ? params["partWhole"] as string : "True",
+        hierarchy: params["hierarchy"] ? params["hierarchy"] as string : "True"
       };
       this.loadImage();
-      
-      
+
     });
 
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
 }

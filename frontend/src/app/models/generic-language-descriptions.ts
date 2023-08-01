@@ -1,3 +1,3 @@
-export interface GenericLanguageDescriptions {        
+export interface GenericLanguageDescriptions {
     descriptionLookup: { [id: string]: string; };
 }

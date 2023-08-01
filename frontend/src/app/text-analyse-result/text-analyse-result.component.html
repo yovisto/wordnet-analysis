@@ -1,8 +1,10 @@
-<p *ngIf="results.length > 0">
-    <span *ngFor="let result of results">
-        <a *ngIf="result.lemma && result.pos" (click)="getWordNet(result.name, result.pos, result.lemma)">{{result.name}}</a>
-        <span *ngIf="result.lemma && result.pos">&nbsp;</span>
-        <span *ngIf="!result.lemma">{{result.name}} </span>
-    </span>
-    <br/>    
-</p>
+<div *ngIf="results.length > 0">
+    <p *ngFor="let result of results">
+        <span *ngFor="let item of result">
+            <a *ngIf="item.lemma && item.pos" (click)="getWordNet(item.name, item.pos, item.lemma)">{{item.name}}</a>
+            <span *ngIf="item.lemma && item.pos">&nbsp;</span>
+            <span *ngIf="!item.lemma">{{item.name}} </span>
+        </span>
+        
+    </p>    
+</div>

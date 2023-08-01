@@ -33,10 +33,10 @@ export class WordnetService {
     return this.http.get<Word[]>(`${this.wordnet_url}words/${query}`, this.httpOptions)
       .pipe(
         tap(_ => this.log('fetched words')),
-        map((results: Word[]) => {          
+        map((results: Word[]) => {
           results.forEach(x => {
-            x.identifier = "Word"            
-          });                    
+            x.identifier = "Word"
+          });
           return results
         }),
         catchError(this.handleError<Word[]>('getWords', []))
@@ -46,11 +46,11 @@ export class WordnetService {
   getWeightedWords(params: InputParams, text: string): Observable<WeightedWord[]> {
     return this.http.post<WeightedWord[]>(`${this.wordnet_url}words/weighted`, { ...params, text })
       .pipe(
-        tap(_ => this.log('fetched words')),        
-        map((results: WeightedWord[]) => {          
+        tap(_ => this.log('fetched words')),
+        map((results: WeightedWord[]) => {
           results.forEach(x => {
-            x.identifier = "WeightedWord"            
-          });                    
+            x.identifier = "WeightedWord"
+          });
           return results
         }),
         catchError(this.handleError<WeightedWord[]>('getWeightedWords', []))

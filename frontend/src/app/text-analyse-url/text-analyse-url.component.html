@@ -1,13 +1,13 @@
-<h2>Analyse Url</h2>
-<div *ngIf="!results">    
+<h2>Url-anlyse</h2>
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<div *ngIf="!results && !loading">
     <form [formGroup]="textAnalyseForm" (ngSubmit)="analyse()">
-        <input formControlName="url"  placeholder="Type url">                                 
+        <input formControlName="url" placeholder="Url eingeben">
         <button (click)="clear()">clear</button>
-        <button type="submit">analyse</button>                                                              
-    </form>     
+        <button type="submit">analyse</button>
+    </form>
 </div>
-<div *ngIf="results">
-    <app-text-analyse-result [results]="results.contextWords" [text]="results.text"></app-text-analyse-result>            
+<div *ngIf="results && !loading">
+    <app-text-analyse-result [results]="results.contextWords" [text]="results.text"></app-text-analyse-result>
     <button (click)="clear()">clear</button>
 </div>
-
