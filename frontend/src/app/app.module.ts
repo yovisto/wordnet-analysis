@@ -17,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { SearchComponentDlgWrapperComponent } from './search-component-dlg-wrapper/search-component-dlg-wrapper.component';
 import { SearchComponent } from './search/search.component';
 
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 import { SearchWrapperComponent } from './search-wrapper/search-wrapper.component';
@@ -50,6 +51,6 @@ import { TextAnalyseUrlComponent } from './text-analyse-url/text-analyse-url.com
   ],
   
   bootstrap: [AppComponent],
-  providers: [importProvidersFrom([BrowserAnimationsModule])]
+  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }, importProvidersFrom([BrowserAnimationsModule])]
 })
 export class AppModule { }

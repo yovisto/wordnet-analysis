@@ -61,6 +61,7 @@ def words():
 @cross_origin()
 def weightedWords():        
     lang = request.json['lang']
+    filterlang = request.json['filterlang']
     woi = request.json['woi'] 
     lemma = request.json['lemma']
     pos = request.json['pos']        
@@ -73,6 +74,7 @@ def weightedWords():
         param.woi = woi
         param.lemma = lemma
         param.pos = pos
+        param.filterLang = filterlang
     
         words = dict.findWords(param);
         weight_classifier = SynsetClassifier(text, lang)
@@ -82,6 +84,7 @@ def weightedWords():
             result = word
             param = SearchParam()
             param.lang = lang
+            param.filterLang = filterlang
             param.wordkey = word.wordKey
             param.category = 'hypernym'
             hypernyms = dict.findWords(param)

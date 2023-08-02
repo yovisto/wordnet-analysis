@@ -1,0 +1,9 @@
+passivlingo-dictionary
+Flask
+Flask-Cors
+urllib3
+bs4
+rdflib
+requests
+gunicorn
+nltk

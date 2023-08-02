@@ -6,8 +6,8 @@
             <textarea formControlName="textAnalyse" matInput rows="20"
                 placeholder="Zu analysierenden Text eingeben..."></textarea>
         </mat-form-field>
-        <button (click)="clear()">clear</button>
         <button type="submit">analyse</button>
+        <button (click)="clear()">clear</button>        
     </form>
 </div>
 <div *ngIf="results.length > 0 && !loading">

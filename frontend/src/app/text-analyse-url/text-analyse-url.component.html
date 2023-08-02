@@ -3,8 +3,8 @@
 <div *ngIf="!results && !loading">
     <form [formGroup]="textAnalyseForm" (ngSubmit)="analyse()">
         <input formControlName="url" placeholder="Url eingeben">
-        <button (click)="clear()">clear</button>
         <button type="submit">analyse</button>
+        <button (click)="clear()">clear</button>        
     </form>
 </div>
 <div *ngIf="results && !loading">

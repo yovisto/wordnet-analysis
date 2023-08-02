@@ -69,7 +69,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy {
   getWords(word: Word | WeightedWord, category: string): void {
     this.inputParamsHistory.push([this.inputParams, this.title]);
     this.title = `${category}: ${word.name}(${word.pos})`;
-    this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, category: category });
+    this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, filterlang: word.lang, category: category });
     this.search(false);
   }
 

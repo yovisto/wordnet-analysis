@@ -25,7 +25,7 @@ export class TextAnalyseResultComponent {
       width: '600px',
     });
     const instance = dialogRef.componentInstance;
-    instance.inputParams = Object.assign({ woi: woi, pos: pos, lemma: lemma, lang: lang });
+    instance.inputParams = Object.assign({ woi: woi, pos: pos, lemma: lemma, lang: lang, filterlang: lang });
     instance.fromText = this.text
   }
 }
