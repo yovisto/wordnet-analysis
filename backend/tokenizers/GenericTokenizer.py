@@ -15,14 +15,17 @@ class GenericTokenizer(Tokenizer):
         self.useDisambiguation = useDisambiguation
         self.wordSenseProvider = Tokenizer.getWordSenseProvider(self.lang)        
 
-    def tokenize(self):     
-        result = []                           
+    def tokenize(self, text = None):     
+        result = []               
+        if text:            
+            self.words = text
         wordTags = self.posTagger.tagText(self.words)        
         stopWords = set(stopwords.words(CommonHelper.getWordnetLangDescription(self.lang)))        
         
         for t in wordTags:            
             word = ContextWord()            
             word.name = t[0]
+            word.whitespace = t[3]
             if len([x for x in ["'", "...", "…", "`", '"'] if x in t[0]]) <= 0 and t[1] in ['VERB', 'NOUN', 'ADV', 'ADJ'] and t[0].lower() not in stopWords:                
                 word.pos = CommonHelper.getSpacyToWordnetPosMapping(t[1])                     
                 word.lemma = t[2]

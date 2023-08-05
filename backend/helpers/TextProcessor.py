@@ -1,8 +1,16 @@
+from ast import List
 import nltk
 from urllib.parse import unquote
 from helpers.FactoryMethods import FactoryMethods
+from posTaggers.SpacyPosTagger import SpacyPosTagger
+from tokenizers.GenericTokenizer import GenericTokenizer
 
 class TextProcessor:    
+
+    def __init__(self, lang = None):
+        self.tokenizer = None
+        if lang:
+            self.tokenizer = GenericTokenizer('', lang, SpacyPosTagger(lang))    
     
     def tokenizeParagraph(self, paragraph: str):
         if paragraph is None:
@@ -17,8 +25,10 @@ class TextProcessor:
                 "Invalid argument list: 'lang' and 'sent' required")
 
         sentence = unquote(sentence)
-        tokenizer = FactoryMethods.getTokenizer(sentence, lang)
-        return tokenizer.tokenize()    
+        if not self.tokenizer:
+            self.tokenizer = FactoryMethods.getTokenizer(sentence, lang)            
+
+        return self.tokenizer.tokenizeSentence(sentence)
 
     def __repr__(self):
         return 'TextProcessor()'

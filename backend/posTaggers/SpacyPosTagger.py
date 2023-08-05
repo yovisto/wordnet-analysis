@@ -10,7 +10,7 @@ class SpacyPosTagger(PosTagger):
         words = self.nlp(textToTag)                        
         result = []
         for word in words:                        
-            result.append((word.text, word.pos_, word.lemma_))
+            result.append((word.text, word.pos_, word.lemma_, word.whitespace_))
         return result
 
 

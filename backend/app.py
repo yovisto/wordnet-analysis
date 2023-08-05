@@ -1,10 +1,11 @@
 
+import os
 from urllib.parse import unquote
 
 from flask import Flask
 from flask import Response
 from flask import request, send_file
-from flask_cors import cross_origin
+from flask_cors import CORS
 
 from passivlingo_dictionary.Dictionary import Dictionary
 from passivlingo_dictionary.models.SearchParam import SearchParam
@@ -23,12 +24,17 @@ from bs4 import BeautifulSoup
 import requests
 import re
 from rdflib.namespace import _SKOS, _RDFS
+from config import cors_dev_config, cors_prod_config
 
 app = Flask(__name__)
 
+if os.environ.get("FLASK_ENV") == "production":
+    CORS(app, resources={r"/api/*": cors_prod_config})
+else:
+    CORS(app, resources={r"/api/*": cors_dev_config})        
+
 # dictionary endpoints
 @app.route('/api/dict/words/', methods=['GET'])
-@cross_origin()
 def words():
     wordkey = request.args['wordkey'] if 'wordkey' in request.args and request.args['wordkey'] else None
     category = request.args['category'] if 'category' in request.args and request.args['category'] else None
@@ -58,7 +64,6 @@ def words():
         return Response(response='{"message":"' + format(err) + '"}', status=404, mimetype="application/json")
 
 @app.route('/api/dict/words/weighted', methods=['POST'])
-@cross_origin()
 def weightedWords():        
     lang = request.json['lang']
     filterlang = request.json['filterlang']
@@ -98,7 +103,6 @@ def weightedWords():
         return Response(response='{"message":"' + format(err) + '"}', status=404, mimetype="application/json")    
 
 @app.route('/api/dict/examples/', methods=['GET'])
-@cross_origin()
 def examples():
     wordkey = request.args['wordkey'] if 'wordkey' in request.args else None
     if wordkey is None:
@@ -109,7 +113,6 @@ def examples():
     return Response(WordEncoder().encode(dict.getExampleSentences(wordkey)), mimetype='application/json')
 
 @app.route('/api/dict/image/', methods=['GET'])
-@cross_origin()
 def getImage():    
     result = main(request.args)
     filePath = result["filePath"]
@@ -128,7 +131,6 @@ def tokenizeParagraph():
     return Response(WordEncoder().encode(nltk.sent_tokenize(paragraph)), mimetype='application/json')
 
 @app.route('/api/shared/tokenize/word/', methods=['POST'])
-@cross_origin()
 def tokenizeSentence():    
     lang = request.json['lang']
     sent = request.json['sent']
@@ -163,17 +165,10 @@ def __get_rdf_response(url, lang):
     return None
 
 @app.route('/api/shared/tokenize/url/', methods=['POST'])
-@cross_origin()
 def tokenizeUrl():    
     def returnError(url, status_code, msg):
         message = f"Failed to parse url: {url} - {msg}"
-        return Response(response='{"message":"' + message + '"}', status=status_code, mimetype="application/json")
-    def visible(element):
-        if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
-            return False
-        elif re.match(r'<!--.*-->', str(element)):
-            return False
-        return True
+        return Response(response='{"message":"' + message + '"}', status=status_code, mimetype="application/json")    
     
     lang = request.json['lang']
     url = request.json['url']
@@ -186,22 +181,20 @@ def tokenizeUrl():
         return rdf_response
 
     try:           
-        response = requests.get(url)        
-        text = ''
+        response = requests.get(url)                
+        result = ContextWordWrapper()        
+        txtProcessor = TextProcessor(lang)               
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')                        
-            visible_text = soup.findAll(text=True)
-            visible_text = filter(visible, visible_text)
-            text = " ".join(visible_text)
-            
+            elements = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'])
+            for element in elements:    
+                text = element.text.strip()    
+                result.text += text
+                contextWords = txtProcessor.tokenizeSentence(text, lang)                        
+                result.contextWords.append(contextWords)                            
         else:
-            returnError(url, response.status_code, '')
-
-        text = unquote(text)
-        result = ContextWordWrapper()
-        txtProcessor = TextProcessor()               
-        result.text = text
-        result.contextWords.append(txtProcessor.tokenizeSentence(text, lang))
+            returnError(url, response.status_code, '')        
+        
         return Response(WordEncoder().encode(result), mimetype='application/json')
 
     except requests.RequestException as e:
