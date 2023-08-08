@@ -21,6 +21,7 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 import { SearchWrapperComponent } from './search-wrapper/search-wrapper.component';
+import { TextAnalyseResultRdfComponent } from './text-analyse-result-rdf/text-analyse-result-rdf.component';
 import { TextAnalyseResultComponent } from './text-analyse-result/text-analyse-result.component';
 import { TextAnalyseUrlComponent } from './text-analyse-url/text-analyse-url.component';
 
@@ -34,7 +35,8 @@ import { TextAnalyseUrlComponent } from './text-analyse-url/text-analyse-url.com
     TextAnalyseUrlComponent,
     SearchWrapperComponent,
     TextAnalyseResultComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,    
+    TextAnalyseResultRdfComponent
   ],
   imports: [
     BrowserModule,

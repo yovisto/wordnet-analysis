@@ -12,20 +12,18 @@ export class TextAnalyseResultComponent {
 
   @Input() results!: Array<ContextWord[]>;
   @Input() text!: string;
-
+  @Input() lang: string = 'de'
 
   constructor(private dlg: MatDialog,) {
 
   }
 
-  getWordNet(woi: string, pos: string, lemma: string): void {
-    const lang = 'de'
-
+  getWordNet(woi: string, pos: string, lemma: string): void {    
     const dialogRef = this.dlg.open(SearchComponentDlgWrapperComponent, {
       width: '600px',
     });
     const instance = dialogRef.componentInstance;
-    instance.inputParams = Object.assign({ woi: woi, pos: pos, lemma: lemma, lang: lang, filterlang: lang });
+    instance.inputParams = Object.assign({ woi: woi, pos: pos, lemma: lemma, lang: this.lang, filterlang: this.lang });
     instance.fromText = this.text
   }
 }

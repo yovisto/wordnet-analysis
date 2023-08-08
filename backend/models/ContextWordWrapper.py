@@ -4,3 +4,5 @@ class ContextWordWrapper():
         self.contextWords = []      
         self.text = ''
         self.is_rdf = False
+        self.rdfNonLiterals = []
+        self.rdfLiterals = []

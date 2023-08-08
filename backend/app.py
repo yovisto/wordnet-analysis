@@ -18,7 +18,7 @@ from models.ContextWord import ContextWord
 from models.ContextWordWrapper import ContextWordWrapper
 from models.WeightedWord import WeightedWord
 
-from helpers.CommonHelper import CommonHelper
+from helpers.RdfHelper import RdfHelper
 from imageCreation.CombinedImageWrapper import main
 from bs4 import BeautifulSoup
 import requests
@@ -144,22 +144,18 @@ def tokenizeSentence():
 
 def __get_rdf_response(url, lang):
     accept_headers = ['application/rdf+xml', 'text/turtle', 'application/ld+json']
-    graph = CommonHelper.get_rdf_graph(url, accept_headers)
+    graph = RdfHelper.get_rdf_graph(url, accept_headers)
     if graph:
         result = ContextWordWrapper()
+        result.is_rdf = True
+        literals = RdfHelper.get_literals_in_rdf_graph(graph, lang)
+        result.rdfLiterals = literals[0]
+        result.rdfNonLiterals = RdfHelper.get_non_literals_in_rdf_graph(graph)        
         txtProcessor = TextProcessor()
-        for attrib in [_SKOS.SKOS.prefLabel, _RDFS.RDFS.label, _RDFS.RDFS.comment]:
-            text = CommonHelper.get_attribute_in_rdf_graph(graph, attrib, lang)
-            if text:
-                text = BeautifulSoup(text, 'html.parser')
-                text = text.get_text()                            
-                result.text += f' {text}'
-                contextWords = txtProcessor.tokenizeSentence(f': {text}', lang)        
-                rdf_word = ContextWord()
-                rdf_word.name = attrib
-                contextWords.insert(0, rdf_word)                
-                result.contextWords.append(contextWords)
-            result.is_rdf = True
+        for literal in result.rdfLiterals:                                    
+            literal.lang = literals[1]
+            literal.contextWords = txtProcessor.tokenizeSentence(literal.text, literal.lang)                    
+            
         return Response(WordEncoder().encode(result), mimetype='application/json')
     
     return None

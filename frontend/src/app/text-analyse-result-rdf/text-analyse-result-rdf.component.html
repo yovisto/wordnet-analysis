@@ -1,0 +1,28 @@
+<div *ngIf="results">
+<table>
+    <tr *ngFor="let literal of results.rdfLiterals">
+        <td>
+            <a (click)="onUrlClick(literal.predicate)">{{literal.predicate}}</a>            
+        </td>
+        <td>
+            <app-text-analyse-result 
+                [results]="[literal.contextWords]" 
+                [text]="literal.text"
+                [lang]="literal.lang">
+            </app-text-analyse-result>            
+        </td>
+    </tr>
+</table>
+<hr />
+<table>
+    <tr *ngFor="let nonliteral of results.rdfNonLiterals">
+        <td>
+            <a (click)="onUrlClick(nonliteral.predicate)">{{nonliteral.predicate}}</a>            
+        </td>
+        <td>
+            <a (click)="onUrlClick(nonliteral.object)">{{nonliteral.object}}</a>            
+        </td>
+    </tr>
+</table>
+
+</div>

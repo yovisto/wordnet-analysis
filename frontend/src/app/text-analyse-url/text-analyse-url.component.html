@@ -1,4 +1,11 @@
-<h2>Url-anlyse</h2>
+<h2>
+    <span *ngIf="history.length > 0">
+        <a (click)="back()">
+            <mat-icon>keyboard_arrow_left</mat-icon>
+        </a>
+    </span>
+    {{title}}
+</h2>
 <app-loading-spinner *ngIf="loading"></app-loading-spinner>
 <div *ngIf="!results && !loading">
     <form [formGroup]="textAnalyseForm" (ngSubmit)="analyse()">
@@ -7,7 +14,11 @@
         <button (click)="clear()">clear</button>        
     </form>
 </div>
-<div *ngIf="results && !loading">
+<div *ngIf="results && !results.is_rdf && !loading">
     <app-text-analyse-result [results]="results.contextWords" [text]="results.text"></app-text-analyse-result>
+    <button (click)="clear()">clear</button>
+</div>
+<div *ngIf="results && results.is_rdf && !loading">
+    <app-text-analyse-result-rdf [results]="results" (notify)="onChildNotifyUrl($event)"></app-text-analyse-result-rdf>
     <button (click)="clear()">clear</button>
 </div>

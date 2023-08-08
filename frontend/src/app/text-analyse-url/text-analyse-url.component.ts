@@ -13,13 +13,14 @@ export class TextAnalyseUrlComponent implements OnDestroy {
 
   results!: ContextWordWrapper | null;
   loading: boolean = false;
-
+  history: Array<string> = new Array<string>;
+  title: string = 'Url-analyse'
   private onDestroy$: Subject<void> = new Subject<void>();
 
   constructor(private textAnalyseService: TextAnalyseService) {
-
+    
   }
-
+  
   ngOnDestroy(): void {
     this.onDestroy$.next();
     this.onDestroy$.complete();
@@ -38,9 +39,9 @@ export class TextAnalyseUrlComponent implements OnDestroy {
         .pipe(takeUntil(this.onDestroy$))
         .subscribe({
           next: (results: ContextWordWrapper) => {
-            this.results = results;
+            this.results = results;            
           },          
-          complete: () => this.loading = false
+          complete: () => this.loading = false                      
         });           
     }
   }
@@ -48,5 +49,25 @@ export class TextAnalyseUrlComponent implements OnDestroy {
   clear(): void {
     this.textAnalyseForm.controls['url'].setValue('');
     this.results = null;
+    this.history = [];
+    this.title = 'Url-analyse';
+  }
+
+  onChildNotifyUrl(url: string) {    
+    this.history.push(this.textAnalyseForm.controls['url'].value as string);
+    this.textAnalyseForm.controls['url'].setValue('');
+    this.results = null;
+    this.textAnalyseForm.controls['url'].setValue(url);
+    this.title = `Url-analyse: ${url}`;
+    this.analyse();
+  }
+
+  back(): void {
+    if (this.history.length > 0) {      
+      const url = this.history.pop();
+      this.textAnalyseForm.controls['url'].setValue(url as string);
+      this.title = `Url-analyse: ${url}`;      
+      this.analyse();
+    }
   }
 }
