@@ -5,7 +5,7 @@ cors_dev_config = {
 
 # PROD Configurations
 cors_prod_config = {
-    "origins": ["https://localhost"],  
+    "origins": ["https://127.0.0.1:80"],  
 }
 
 

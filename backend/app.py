@@ -5,7 +5,7 @@ from urllib.parse import unquote
 from flask import Flask
 from flask import Response
 from flask import request, send_file
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 from passivlingo_dictionary.Dictionary import Dictionary
 from passivlingo_dictionary.models.SearchParam import SearchParam
@@ -28,13 +28,14 @@ from config import cors_dev_config, cors_prod_config
 
 app = Flask(__name__)
 
-if os.environ.get("FLASK_ENV") == "production":
+if os.environ.get("FLASK_ENV") == "production":    
     CORS(app, resources={r"/api/*": cors_prod_config})
-else:
+else:    
     CORS(app, resources={r"/api/*": cors_dev_config})        
 
 # dictionary endpoints
 @app.route('/api/dict/words/', methods=['GET'])
+@cross_origin()
 def words():
     wordkey = request.args['wordkey'] if 'wordkey' in request.args and request.args['wordkey'] else None
     category = request.args['category'] if 'category' in request.args and request.args['category'] else None
@@ -64,6 +65,7 @@ def words():
         return Response(response='{"message":"' + format(err) + '"}', status=404, mimetype="application/json")
 
 @app.route('/api/dict/words/weighted', methods=['POST'])
+@cross_origin()
 def weightedWords():        
     lang = request.json['lang']
     filterlang = request.json['filterlang']
@@ -103,6 +105,7 @@ def weightedWords():
         return Response(response='{"message":"' + format(err) + '"}', status=404, mimetype="application/json")    
 
 @app.route('/api/dict/examples/', methods=['GET'])
+@cross_origin()
 def examples():
     wordkey = request.args['wordkey'] if 'wordkey' in request.args else None
     if wordkey is None:
@@ -113,6 +116,7 @@ def examples():
     return Response(WordEncoder().encode(dict.getExampleSentences(wordkey)), mimetype='application/json')
 
 @app.route('/api/dict/image/', methods=['GET'])
+@cross_origin()
 def getImage():    
     result = main(request.args)
     filePath = result["filePath"]
@@ -121,6 +125,7 @@ def getImage():
 
 # General text analysis endpoints
 @app.route('/api/shared/tokenize/sentence/', methods=['GET'])
+@cross_origin()
 def tokenizeParagraph():
     paragraph = request.args['paragraph'] if 'paragraph' in request.args else None
     if paragraph is None:
@@ -131,6 +136,7 @@ def tokenizeParagraph():
     return Response(WordEncoder().encode(nltk.sent_tokenize(paragraph)), mimetype='application/json')
 
 @app.route('/api/shared/tokenize/word/', methods=['POST'])
+@cross_origin()
 def tokenizeSentence():    
     lang = request.json['lang']
     sent = request.json['sent']
@@ -154,13 +160,19 @@ def __get_rdf_response(url, lang):
         txtProcessor = TextProcessor()
         for literal in result.rdfLiterals:                                    
             literal.lang = literals[1]
-            literal.contextWords = txtProcessor.tokenizeSentence(literal.text, literal.lang)                    
-            
+            try:
+                literal.contextWords = txtProcessor.tokenizeSentence(literal.text, literal.lang)                    
+            except:    
+                word = ContextWord()
+                word.name = literal.text
+                literal.contextWords = [word]
+
         return Response(WordEncoder().encode(result), mimetype='application/json')
     
     return None
 
 @app.route('/api/shared/tokenize/url/', methods=['POST'])
+@cross_origin()
 def tokenizeUrl():    
     def returnError(url, status_code, msg):
         message = f"Failed to parse url: {url} - {msg}"
