@@ -1,8 +1,9 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { ContextWordWrapper } from '../models/context-word-wrapper';
 import { TextAnalyseService } from '../services/text-analyse.service';
+import { TextAnalyseResultRdfComponent } from '../text-analyse-result-rdf/text-analyse-result-rdf.component';
 
 @Component({
   selector: 'app-text-analyse-url',
@@ -13,8 +14,10 @@ export class TextAnalyseUrlComponent implements OnDestroy {
 
   results!: ContextWordWrapper | null;
   loading: boolean = false;
-  history: Array<string> = new Array<string>;
+  history: Array<[ContextWordWrapper, string]> = new Array<[ContextWordWrapper, string]>;
   title: string = 'Url-analyse'
+  @ViewChild(TextAnalyseResultRdfComponent, { static: false }) rdfComponent!: TextAnalyseResultRdfComponent;
+
   private onDestroy$: Subject<void> = new Subject<void>();
 
   constructor(private textAnalyseService: TextAnalyseService) {
@@ -34,6 +37,7 @@ export class TextAnalyseUrlComponent implements OnDestroy {
     const url = this.textAnalyseForm.controls['url'].value as string;
     const lang = 'de';
     if (url) {
+      this.title = `Url-analyse: ${url}`;
       this.loading = true;
       this.textAnalyseService.tokenizeTextFromUrl(url, lang)
         .pipe(takeUntil(this.onDestroy$))
@@ -54,7 +58,7 @@ export class TextAnalyseUrlComponent implements OnDestroy {
   }
 
   onChildNotifyUrl(url: string) {    
-    this.history.push(this.textAnalyseForm.controls['url'].value as string);
+    this.history.push([this.results as ContextWordWrapper, this.textAnalyseForm.controls['url'].value as string]);
     this.textAnalyseForm.controls['url'].setValue('');
     this.results = null;
     this.textAnalyseForm.controls['url'].setValue(url);
@@ -63,11 +67,14 @@ export class TextAnalyseUrlComponent implements OnDestroy {
   }
 
   back(): void {
-    if (this.history.length > 0) {      
-      const url = this.history.pop();
-      this.textAnalyseForm.controls['url'].setValue(url as string);
-      this.title = `Url-analyse: ${url}`;      
-      this.analyse();
+    if (this.history.length > 0) {            
+      const prev = this.history.pop() as [ContextWordWrapper, string];
+      this.textAnalyseForm.controls['url'].setValue(prev[1] as string);
+      this.title = `Url-analyse: ${prev[1]}`;      
+      this.results = prev[0];
+      if (this.rdfComponent) {
+        this.rdfComponent.setInputParam(this.results);      
+      }      
     }
   }
 }

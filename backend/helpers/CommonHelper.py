@@ -21,7 +21,7 @@ class CommonHelper:
     
     @classmethod
     def getSpacyModelName(cls, lang):
-        choices = {'de': 'de_core_news_lg'}
+        choices = {'de': 'de_core_news_md'}
         return choices.get(lang, 'en_core_web_sm')
 
     @classmethod
