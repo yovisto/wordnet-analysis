@@ -1,6 +1,6 @@
-passivlingo-dictionary
 Flask
 Flask-Cors
+passivlingo-dictionary
 urllib3
 bs4
 rdflib
