@@ -4,16 +4,16 @@ services:
     build:
       context: ./frontend
     ports:
-      - "80:80"
+      - "8181:80"
     networks:
-      - my_network  
+      - gitlab-net  
   backend:
     build:
       context: ./backend
     ports:
       - "5000:5000"
     networks:
-      - my_network
+      - gitlab-net
 
 networks:
-  my_network:
+  gitlab-net:
