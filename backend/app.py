@@ -28,10 +28,10 @@ from config import cors_dev_config, cors_prod_config
 
 app = Flask(__name__)
 
-if os.environ.get("FLASK_ENV") == "production":    
-    CORS(app, resources={r"/api/*": cors_prod_config})
-else:    
-    CORS(app, resources={r"/api/*": cors_dev_config})        
+# if os.environ.get("FLASK_ENV") == "production":    
+#     CORS(app, resources={r"/api/*": cors_prod_config})
+# else:    
+#     CORS(app, resources={r"/api/*": cors_dev_config})        
 
 # dictionary endpoints
 @app.route('/api/dict/words/', methods=['GET'])

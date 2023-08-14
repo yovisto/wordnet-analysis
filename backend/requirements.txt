@@ -1,5 +1,3 @@
-Flask
-Flask-Cors
 passivlingo-dictionary
 urllib3
 bs4
@@ -7,3 +5,5 @@ rdflib
 requests
 gunicorn
 nltk
+Flask
+Flask-Cors
