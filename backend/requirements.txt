@@ -1,9 +1,9 @@
 passivlingo-dictionary
-urllib3
+nltk
 bs4
 rdflib
+urllib3
 requests
 gunicorn
-nltk
 Flask
 Flask-Cors
