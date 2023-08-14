@@ -1,16 +1,7 @@
 FROM python:3.9
 WORKDIR /app
 COPY requirements.txt .
-#RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install passivlingo-dictionary
-RUN pip install nltk
-RUN pip install bs4
-RUN pip install rdflib
-RUN pip install urllib3
-RUN pip install requests
-RUN pip install gunicorn
-RUN pip install Flask
-RUN pip install Flask-Cors
+RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 EXPOSE 5000
 RUN apt-get update && apt-get install -y graphviz
