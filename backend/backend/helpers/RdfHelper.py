@@ -2,10 +2,10 @@ from typing import Optional, List, Tuple
 import requests
 from rdflib import Graph, Literal, URIRef
 from rdflib.plugins.sparql import prepareQuery
-from models.RdfLiteral import RdfLiteral
+from backend.models.RdfLiteral import RdfLiteral
 from bs4 import BeautifulSoup
 
-from models.RdfNonLiteral import RdfNonLiteral
+from backend.models.RdfNonLiteral import RdfNonLiteral
 
 class RdfHelper:
 

@@ -1,6 +1,6 @@
 import spacy
 from .PosTagger import PosTagger
-from helpers.CommonHelper import CommonHelper
+from backend.helpers.CommonHelper import CommonHelper
 
 class SpacyPosTagger(PosTagger):    
     def __init__(self, lang):        

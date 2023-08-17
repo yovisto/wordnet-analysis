@@ -1,4 +1,4 @@
-
+import platform 
 import os
 from urllib.parse import unquote
 
@@ -11,20 +11,20 @@ from passivlingo_dictionary.Dictionary import Dictionary
 from passivlingo_dictionary.models.SearchParam import SearchParam
 
 import nltk
-from encoders.WordEncoder import WordEncoder
-from helpers.SynsetClassifier import SynsetClassifier
-from helpers.TextProcessor import TextProcessor
-from models.ContextWord import ContextWord
-from models.ContextWordWrapper import ContextWordWrapper
-from models.WeightedWord import WeightedWord
+from backend.encoders.WordEncoder import WordEncoder
+from backend.helpers.SynsetClassifier import SynsetClassifier
+from backend.helpers.TextProcessor import TextProcessor
+from backend.helpers.RdfHelper import RdfHelper
+from backend.models.ContextWord import ContextWord
+from backend.models.ContextWordWrapper import ContextWordWrapper
+from backend.models.WeightedWord import WeightedWord
+from backend.imageCreation.CombinedImageWrapper import main
 
-from helpers.RdfHelper import RdfHelper
-from imageCreation.CombinedImageWrapper import main
 from bs4 import BeautifulSoup
 import requests
 import re
 from rdflib.namespace import _SKOS, _RDFS
-from config import cors_dev_config, cors_prod_config
+from backend.config import cors_dev_config, cors_prod_config
 
 app = Flask(__name__)
 
@@ -207,8 +207,52 @@ def tokenizeUrl():
 
     except requests.RequestException as e:
         returnError(url, 500, e)
+        
+def main():
+    import multiprocessing
 
-    
+    import gunicorn.app.base
 
 
+    def number_of_workers():
+        return (multiprocessing.cpu_count() * 2) + 1
 
+
+    def handler_app(environ, start_response):
+        response_body = b'Works fine'
+        status = '200 OK'
+
+        response_headers = [
+            ('Content-Type', 'text/plain'),
+        ]
+
+        start_response(status, response_headers)
+
+        return [response_body]
+
+
+    class StandaloneApplication(gunicorn.app.base.BaseApplication):
+
+        def __init__(self, app, options=None):
+            self.options = options or {}
+            self.application = app
+            super().__init__()
+
+        def load_config(self):
+            config = {key: value for key, value in self.options.items()
+                      if key in self.cfg.settings and value is not None}
+            for key, value in config.items():
+                self.cfg.set(key.lower(), value)
+
+        def load(self):
+            return self.application
+
+    options = {
+        'bind': '%s:%s' % ('127.0.0.1', '8080'),
+        'workers': number_of_workers(),
+    }
+    StandaloneApplication(handler_app, options).run()
+
+
+if __name__ == "__main__":
+    main()

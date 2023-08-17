@@ -2,8 +2,8 @@ import nltk
 from urllib.parse import unquote
 
 import spacy
-from helpers.CommonHelper import CommonHelper
-from helpers.FactoryMethods import FactoryMethods
+from backend.helpers.CommonHelper import CommonHelper
+from backend.helpers.FactoryMethods import FactoryMethods
 
 
 class SynsetClassifier:
