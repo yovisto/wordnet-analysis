@@ -4,7 +4,7 @@ from backend.helpers.CommonHelper import CommonHelper
 
 class SpacyPosTagger(PosTagger):    
     def __init__(self, lang):        
-        self.nlp = spacy.load(CommonHelper.getSpacyModelName(lang))
+        self.nlp = CommonHelper.getSpacyModelName(lang)
 
     def tagText(self, textToTag):                  
         words = self.nlp(textToTag)                        

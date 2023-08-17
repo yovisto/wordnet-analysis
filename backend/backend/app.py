@@ -18,7 +18,8 @@ from backend.helpers.RdfHelper import RdfHelper
 from backend.models.ContextWord import ContextWord
 from backend.models.ContextWordWrapper import ContextWordWrapper
 from backend.models.WeightedWord import WeightedWord
-from backend.imageCreation.CombinedImageWrapper import main
+from backend.imageCreation.CombinedImageWrapper import main as imageCreation
+
 
 from bs4 import BeautifulSoup
 import requests
@@ -118,7 +119,7 @@ def examples():
 @app.route('/api/dict/image/', methods=['GET'])
 @cross_origin()
 def getImage():    
-    result = main(request.args)
+    result = imageCreation(request.args)
     filePath = result["filePath"]
 
     return send_file(filePath, mimetype='image/png')    
@@ -210,29 +211,12 @@ def tokenizeUrl():
         
 def main():
     import multiprocessing
-
     import gunicorn.app.base
-
 
     def number_of_workers():
         return (multiprocessing.cpu_count() * 2) + 1
 
-
-    def handler_app(environ, start_response):
-        response_body = b'Works fine'
-        status = '200 OK'
-
-        response_headers = [
-            ('Content-Type', 'text/plain'),
-        ]
-
-        start_response(status, response_headers)
-
-        return [response_body]
-
-
     class StandaloneApplication(gunicorn.app.base.BaseApplication):
-
         def __init__(self, app, options=None):
             self.options = options or {}
             self.application = app
@@ -248,10 +232,10 @@ def main():
             return self.application
 
     options = {
-        'bind': '%s:%s' % ('127.0.0.1', '8080'),
+        'bind': '%s:%s' % ('0.0.0.0', '5000'),
         'workers': number_of_workers(),
     }
-    StandaloneApplication(handler_app, options).run()
+    StandaloneApplication(app, options).run()
 
 
 if __name__ == "__main__":

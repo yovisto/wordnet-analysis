@@ -13,7 +13,10 @@ setup(
     ],
     package_dir={"": "."},
     entry_points={
-        "console_scripts": ["wordnet-analysis-backend = backend.app:main"]
+        "console_scripts": [
+            "wordnet-analysis-backend = backend.app:main",
+            "post-install-script = backend.post_install_scripts:main"
+        ]
     },
 
 )

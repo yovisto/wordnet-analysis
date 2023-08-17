@@ -10,7 +10,7 @@ class SynsetClassifier:
 
     def __init__(self, text, lang):
         self.lang = lang             
-        self.nlp = spacy.load(CommonHelper.getSpacyModelName(lang))
+        self.nlp = CommonHelper.getSpacyModelName(lang)
         self.text_vec = []
         tokens = self.nlp(text)
         for token in tokens:

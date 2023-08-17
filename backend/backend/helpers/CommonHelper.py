@@ -2,6 +2,9 @@
 from urllib.parse import unquote
 from nltk.corpus import wordnet as wn
 
+import de_core_news_md
+import en_core_web_sm
+
 class CommonHelper:    
             
     @classmethod
@@ -21,8 +24,8 @@ class CommonHelper:
     
     @classmethod
     def getSpacyModelName(cls, lang):
-        choices = {'de': 'de_core_news_md'}
-        return choices.get(lang, 'en_core_web_sm')
+        choices = {'de': de_core_news_md.load()}
+        return choices.get(lang, en_core_web_sm.load())
 
     @classmethod
     def getSpacyToWordnetPosMapping(cls, pos):
