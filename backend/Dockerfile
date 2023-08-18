@@ -10,4 +10,4 @@ RUN python3 -m spacy download de_core_news_md
 RUN python3 -m spacy download en_core_web_sm
 ENV FLASK_ENV=production
 RUN echo "The ENV variable value for FLASK_ENV is $FLASK_ENV"
-CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000"]
+CMD ["gunicorn", "backend.app:app", "-b", "0.0.0.0:5000"]
