@@ -2,15 +2,15 @@ import nltk
 from urllib.parse import unquote
 
 import spacy
-from helpers.CommonHelper import CommonHelper
-from helpers.FactoryMethods import FactoryMethods
+from backend.helpers.CommonHelper import CommonHelper
+from backend.helpers.FactoryMethods import FactoryMethods
 
 
 class SynsetClassifier:
 
     def __init__(self, text, lang):
         self.lang = lang             
-        self.nlp = spacy.load(CommonHelper.getSpacyModelName(lang))
+        self.nlp = CommonHelper.getSpacyModelName(lang)
         self.text_vec = []
         tokens = self.nlp(text)
         for token in tokens:

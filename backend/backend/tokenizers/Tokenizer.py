@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABCMeta
 from urllib.parse import unquote
-from wordSenseProviders.DefaultWordSenseProvider import DefaultWordSenseProvider
-from wordSenseProviders.EnglishWordSenseProvider import EnglishWordSenseProvider
+from backend.wordSenseProviders.DefaultWordSenseProvider import DefaultWordSenseProvider
+from backend.wordSenseProviders.EnglishWordSenseProvider import EnglishWordSenseProvider
 
 class Tokenizer:
 

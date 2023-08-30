@@ -1,10 +1,10 @@
 from .Tokenizer import Tokenizer
 import nltk
 from nltk.tokenize import word_tokenize
-from helpers.Constants import DOMAIN_NAMES
+from backend.helpers.Constants import DOMAIN_NAMES
 from nltk.corpus import stopwords
-from helpers.CommonHelper import CommonHelper
-from models.ContextWord import ContextWord
+from backend.helpers.CommonHelper import CommonHelper
+from backend.models.ContextWord import ContextWord
 
 class EnglishTokenizer(Tokenizer):
 

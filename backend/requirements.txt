@@ -1,9 +1,9 @@
 passivlingo-dictionary
 nltk
-bs4
+beautifulsoup4
 rdflib
 urllib3
 requests
 gunicorn
-Flask
-Flask-Cors
+flask
+flask-cors

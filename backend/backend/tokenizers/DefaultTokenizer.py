@@ -2,9 +2,9 @@ from .Tokenizer import Tokenizer
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from helpers.CommonHelper import CommonHelper
-from helpers.Constants import DOMAIN_NAMES
-from models.ContextWord import ContextWord
+from backend.helpers.CommonHelper import CommonHelper
+from backend.helpers.Constants import DOMAIN_NAMES
+from backend.models.ContextWord import ContextWord
 
 class DefaultTokenizer(Tokenizer):
 

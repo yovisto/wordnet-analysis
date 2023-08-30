@@ -1,9 +1,9 @@
 from ast import List
 import nltk
 from urllib.parse import unquote
-from helpers.FactoryMethods import FactoryMethods
-from posTaggers.SpacyPosTagger import SpacyPosTagger
-from tokenizers.GenericTokenizer import GenericTokenizer
+from backend.helpers.FactoryMethods import FactoryMethods
+from backend.posTaggers.SpacyPosTagger import SpacyPosTagger
+from backend.tokenizers.GenericTokenizer import GenericTokenizer
 
 class TextProcessor:    
 
