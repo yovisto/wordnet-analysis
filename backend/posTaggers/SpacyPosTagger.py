@@ -7,10 +7,14 @@ class SpacyPosTagger(PosTagger):
         self.nlp = spacy.load(CommonHelper.getSpacyModelName(lang))
 
     def tagText(self, textToTag):                  
-        words = self.nlp(textToTag)                        
         result = []
-        for word in words:                        
-            result.append((word.text, word.pos_, word.lemma_, word.whitespace_))
+        try: 
+            words = self.nlp(textToTag)                                
+            for word in words:                        
+                result.append((word.text, word.pos_, word.lemma_, word.whitespace_))
+        except:
+            print(f'Spacy Tagger failed on following text: {textToTag}')        
+        
         return result
 
 
