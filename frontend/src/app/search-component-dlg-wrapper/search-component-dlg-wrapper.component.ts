@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { SearchComponent } from '../search/search.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { InputParams } from '../models/input-params';
+import { SearchComponent } from '../search/search.component';
 
 @Component({
   selector: 'app-search-component-dlg-wrapper',

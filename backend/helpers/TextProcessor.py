@@ -7,10 +7,11 @@ from tokenizers.GenericTokenizer import GenericTokenizer
 
 class TextProcessor:    
 
-    def __init__(self, lang = None):
+    def __init__(self, lang = None, hasNamedEntities = False, spacyModel = None):
         self.tokenizer = None
+        self.hasNameEntities = hasNamedEntities        
         if lang:
-            self.tokenizer = GenericTokenizer('', lang, SpacyPosTagger(lang))    
+            self.tokenizer = GenericTokenizer('', lang, SpacyPosTagger(lang, hasNamedEntities=self.hasNameEntities, spacyModel = spacyModel))    
     
     def tokenizeParagraph(self, paragraph: str):
         if paragraph is None:
@@ -19,14 +20,14 @@ class TextProcessor:
         paragraph = unquote(paragraph)
         return nltk.sent_tokenize(paragraph)
 
-    def tokenizeSentence(self, sentence: str, lang: str):
-        if None in [sentence, lang]:
+    def tokenizeSentence(self, sentence: str, lang: str, spacyModel=None):
+        if sentence == None:
             raise ValueError(
-                "Invalid argument list: 'lang' and 'sent' required")
+                "Invalid argument list: 'sent' required")
 
         sentence = unquote(sentence)
-        if not self.tokenizer:
-            self.tokenizer = FactoryMethods.getTokenizer(sentence, lang)            
+        if spacyModel:
+            self.tokenizer = GenericTokenizer('', lang, SpacyPosTagger(lang, hasNamedEntities=self.hasNameEntities, spacyModel = spacyModel))    
 
         return self.tokenizer.tokenizeSentence(sentence)
 

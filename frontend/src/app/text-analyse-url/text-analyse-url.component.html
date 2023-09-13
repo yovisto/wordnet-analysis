@@ -1,5 +1,5 @@
 <h2>
-    <span *ngIf="history.length > 0">
+    <span *ngIf="history.length > 0 && !loading">
         <a (click)="back()">
             <mat-icon>keyboard_arrow_left</mat-icon>
         </a>
@@ -11,14 +11,17 @@
     <form [formGroup]="textAnalyseForm" (ngSubmit)="analyse()">
         <input formControlName="url" placeholder="Url eingeben">
         <button type="submit">analyse</button>
-        <button (click)="clear()">clear</button>        
+        <button (click)="clear()">clear</button>
     </form>
 </div>
 <div *ngIf="results && !results.is_rdf && !loading">
-    <app-text-analyse-result [results]="results.contextWords" [text]="results.text"></app-text-analyse-result>
-    <button (click)="clear()">clear</button>
+    <app-text-analyse-result [results]="results.contextWords" [text]="results.text" [isDialog]="isDialog"
+        (clickUrlInsideDialog)="onChildNotifyUrl($event)">
+    </app-text-analyse-result>
+    
+    <button *ngIf="!isDialog" (click)="clear()">clear</button>
 </div>
 <div *ngIf="results && results.is_rdf && !loading">
     <app-text-analyse-result-rdf [results]="results" (notify)="onChildNotifyUrl($event)"></app-text-analyse-result-rdf>
-    <button (click)="clear()">clear</button>
+    <button *ngIf="!isDialog" (click)="clear()">clear</button>
 </div>

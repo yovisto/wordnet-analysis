@@ -25,7 +25,7 @@
                 <strong>Example: </strong>{{word.example}}
             </p>
             <p *ngIf="word.identifier == 'WeightedWord'">
-                <strong>Weight: </strong>{{word.weight}}
+                <strong>Weight: </strong>{{word.weight.toFixed(2)}}
             </p>
             <span>
                 <a title="diagram" [routerLink]="['/image']" [queryParams]="getImageParams(word.wordKey)"

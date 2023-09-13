@@ -10,8 +10,8 @@ from nltk.corpus import wordnet as wn
 class FactoryMethods:        
 
     @classmethod
-    def getTokenizer(cls, sent, lang):
-        return GenericTokenizer(unquote(sent), lang, SpacyPosTagger(lang))    
+    def getTokenizer(cls, sent, lang, hasNamedEntities=False):
+        return GenericTokenizer(unquote(sent), lang, SpacyPosTagger(lang, hasNamedEntities=hasNamedEntities))    
         
     @classmethod
     def getLemmatizer(cls, lang):        

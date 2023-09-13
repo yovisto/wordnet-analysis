@@ -8,9 +8,13 @@ from helpers.FactoryMethods import FactoryMethods
 
 class SynsetClassifier:
 
-    def __init__(self, text, lang):
+    def __init__(self, text, lang, spacyModel=None):
         self.lang = lang             
-        self.nlp = spacy.load(CommonHelper.getSpacyModelName(lang))
+        if not spacyModel:
+            self.nlp = spacy.load(CommonHelper.getSpacyModelName(lang))
+        else:
+            self.nlp = spacyModel
+
         self.text_vec = []
         tokens = self.nlp(text)
         for token in tokens:

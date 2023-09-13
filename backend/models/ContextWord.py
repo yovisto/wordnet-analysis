@@ -4,4 +4,5 @@ class ContextWord(BaseWord):
     def __init__(self):
         super().__init__()                
         self.lemma = ''
-        self.whitespace = ''        
+        self.whitespace = ''
+        self.dbPediaUrl = ''

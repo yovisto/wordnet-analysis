@@ -1,7 +1,7 @@
 <div *ngIf="results && filteredData">
 
     <div>        
-        <input type="text" placeholder="filter results ..." (keyup)="filterTable($event)" autofocus>        
+        <input class="filter-results" type="text" placeholder="filter results ..." (keyup)="filterTable($event)" autofocus>                
     </div>
     <table>
         <tbody>
@@ -11,7 +11,7 @@
                 </td>
                 <td>
                     <app-text-analyse-result [results]="[literal.contextWords]" [text]="literal.text"
-                        [lang]="literal.lang">
+                        [lang]="literal.lang" [isDialog]="true" (clickUrlInsideDialog)="onUrlClick($event)">
                     </app-text-analyse-result>
                 </td>
             </tr>

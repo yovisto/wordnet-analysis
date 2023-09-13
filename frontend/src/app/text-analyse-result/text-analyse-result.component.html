@@ -1,7 +1,7 @@
 <div *ngIf="results.length > 0">
     <p *ngFor="let result of results">
         <span *ngFor="let item of result">
-            <a *ngIf="item.lemma && item.pos" (click)="getWordNet(item.name, item.pos, item.lemma)">{{item.name}}</a>
+            <a *ngIf="item.lemma && item.pos" (click)="getLodData(item, result)">{{item.name}}</a>
             <span *ngIf="item.lemma && item.pos">{{item.whitespace}}</span>
             <span *ngIf="!item.lemma">{{item.name}}{{item.whitespace}}</span>
         </span>

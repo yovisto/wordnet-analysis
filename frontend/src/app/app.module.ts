@@ -24,6 +24,7 @@ import { SearchWrapperComponent } from './search-wrapper/search-wrapper.componen
 import { TextAnalyseResultRdfComponent } from './text-analyse-result-rdf/text-analyse-result-rdf.component';
 import { TextAnalyseResultComponent } from './text-analyse-result/text-analyse-result.component';
 import { TextAnalyseUrlComponent } from './text-analyse-url/text-analyse-url.component';
+import { RdfDlgWrapperComponentComponent } from './rdf-dlg-wrapper-component/rdf-dlg-wrapper-component.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,7 @@ import { TextAnalyseUrlComponent } from './text-analyse-url/text-analyse-url.com
     SearchWrapperComponent,
     TextAnalyseResultComponent,
     LoadingSpinnerComponent,    
-    TextAnalyseResultRdfComponent
+    TextAnalyseResultRdfComponent, RdfDlgWrapperComponentComponent
   ],
   imports: [
     BrowserModule,

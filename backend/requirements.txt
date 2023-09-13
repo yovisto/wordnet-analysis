@@ -1,4 +1,5 @@
 passivlingo-dictionary
+spacy_dbpedia_spotlight
 nltk
 bs4
 rdflib
