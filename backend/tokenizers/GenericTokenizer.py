@@ -9,11 +9,8 @@ from posTaggers.PosTagger import PosTagger
 
 class GenericTokenizer(Tokenizer):
 
-    def __init__(self, words, lang, posTagger, useDisambiguation = False):
-        super().__init__(words, lang)        
-        self.posTagger = posTagger
-        self.useDisambiguation = useDisambiguation
-        self.wordSenseProvider = Tokenizer.getWordSenseProvider(self.lang)        
+    def __init__(self, posTagger):             
+        self.posTagger = posTagger        
 
     def __merge_lists(self, dbpedia_entities, words):
         last_index = 0
@@ -37,14 +34,12 @@ class GenericTokenizer(Tokenizer):
                         
         return words            
 
-    def tokenize(self, text = None):     
-        result = []               
-        if text:            
-            self.words = text
-        tagResults = self.posTagger.tagText(self.words)        
+    def tokenize(self, lang, text):     
+        result = []                       
+        tagResults = self.posTagger.tagText(text)        
         wordTags = tagResults[0]
         dbpedia_entities = tagResults[1]        
-        stopWords = set(stopwords.words(CommonHelper.getWordnetLangDescription(self.lang)))                
+        stopWords = set(stopwords.words(CommonHelper.getWordnetLangDescription(lang)))                
         wordTags = self.__merge_lists(dbpedia_entities, wordTags)        
 
         for t in wordTags:            
@@ -52,6 +47,7 @@ class GenericTokenizer(Tokenizer):
             word.name = t[0]
             word.whitespace = t[3]            
             word.dbPediaUrl = t[4]            
+            word.lang = lang
             if len([x for x in ["'", "...", "…", "`", '"'] if x in t[0]]) <= 0 and t[1] in ['VERB', 'NOUN', 'ADV', 'ADJ'] and t[0].lower() not in stopWords:                
                 word.pos = CommonHelper.getSpacyToWordnetPosMapping(t[1])                     
                 word.lemma = t[2]

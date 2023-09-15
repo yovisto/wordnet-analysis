@@ -5,23 +5,8 @@ from wordSenseProviders.EnglishWordSenseProvider import EnglishWordSenseProvider
 
 class Tokenizer:
 
-    __metaclass__ = ABCMeta
-
-    def __init__(self, words, lang):        
-        self.words = words
-        self.lang = lang                
-
-    def tokenizeSentence(self, words): 
-        if words == None:
-            words = ''
-        self.words = unquote(words)
-        return self.tokenize()        
-    
-    @classmethod
-    def getWordSenseProvider(cls, lang):
-        choices = {'eng': EnglishWordSenseProvider()}
-        return choices.get(lang, DefaultWordSenseProvider())
+    __metaclass__ = ABCMeta                    
 
     @abstractmethod
-    def tokenize(self): pass
+    def tokenize(self, lang, text): pass
     

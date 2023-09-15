@@ -5,6 +5,11 @@
         </a>
     </span>
     {{title}}
+    <span *ngIf="words.length > 0">
+        <a title="search results diagram" [routerLink]="['/image']" [queryParams]="imageParams" target="_blank">
+            <mat-icon>photo</mat-icon>
+        </a>
+    </span>
 </h2>
 <app-loading-spinner *ngIf="loading"></app-loading-spinner>
 <div *ngIf="!loading" class="search-results">
@@ -64,23 +69,7 @@
                 </a>
             </span>
         </mat-expansion-panel>
-        <mat-expansion-panel *ngIf="words.length > 0">
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    Diagram
-                </mat-panel-title>
-                <mat-panel-description>
-
-                </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div *ngIf="(imageSrc$ | async) as image">
-                <div>
-                    <a [routerLink]="['/image']" [queryParams]="imageParams" target="_blank">
-                        <img [src]="image">
-                    </a>
-                </div>
-            </div>
-        </mat-expansion-panel>
     </mat-accordion>
+    <p></p>
 </div>
 <div *ngIf="words.length == 0 && this.inputParams && !this.loading">No search results found</div>

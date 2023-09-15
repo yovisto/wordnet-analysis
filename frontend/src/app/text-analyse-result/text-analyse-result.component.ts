@@ -14,8 +14,7 @@ const CONTEXT_MARGIN = 50;
 export class TextAnalyseResultComponent {
 
   @Input() results!: Array<ContextWord[]>;
-  @Input() text!: string;
-  @Input() lang: string = 'de';
+  @Input() text!: string;  
   @Input() isDialog: boolean = false;
   @Output() clickUrlInsideDialog: EventEmitter<string> = new EventEmitter<string>();
 
@@ -43,7 +42,7 @@ export class TextAnalyseResultComponent {
       width: '600px',
     });
     const instance = dialogRef.componentInstance;
-    instance.inputParams = Object.assign({ woi: item.name, pos: item.pos, lemma: item.lemma, lang: this.lang, filterlang: this.lang });
+    instance.inputParams = Object.assign({ woi: item.name, pos: item.pos, lemma: item.lemma, lang: item.lang, filterlang: item.lang });
     const index = result.indexOf(item);
     const startIndex = index - CONTEXT_MARGIN < 0 ? 0 : index - CONTEXT_MARGIN;
     const endIndex = index + CONTEXT_MARGIN > result.length ? result.length - 1 : index + CONTEXT_MARGIN;

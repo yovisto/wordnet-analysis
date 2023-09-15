@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { ImageInputParams } from '../models/image-input-params';
 import { InputParams } from '../models/input-params';
 import { WeightedWord } from '../models/weighted-word';
@@ -17,7 +17,6 @@ export class SearchComponent implements AfterViewInit, OnDestroy {
   @Input() fromText!: string;
 
   words: (Word | WeightedWord)[] = [];
-  imageSrc$!: Observable<string>;
   imageParams!: ImageInputParams;
   title!: string;
   inputParamsHistory: Array<[InputParams, string]> = new Array<[InputParams, string]>;
@@ -92,9 +91,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy {
         partWhole: "True"
       });
 
-      this.imageParams = params;
-      this.imageSrc$ = this.wordnetService.getImage(params);
-
+      this.imageParams = params;      
     }
   }
 

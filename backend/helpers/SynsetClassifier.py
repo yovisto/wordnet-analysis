@@ -5,15 +5,10 @@ import spacy
 from helpers.CommonHelper import CommonHelper
 from helpers.FactoryMethods import FactoryMethods
 
-
 class SynsetClassifier:
 
-    def __init__(self, text, lang, spacyModel=None):
-        self.lang = lang             
-        if not spacyModel:
-            self.nlp = spacy.load(CommonHelper.getSpacyModelName(lang))
-        else:
-            self.nlp = spacyModel
+    def __init__(self, text, spacyModel):        
+        self.nlp = spacyModel
 
         self.text_vec = []
         tokens = self.nlp(text)

@@ -27,6 +27,8 @@ from rdflib.namespace import _SKOS, _RDFS
 from config import cors_dev_config, cors_prod_config
 from spacy_config import create_pipeline_de, create_pipeline_en
 
+from langdetect import detect
+
 app = Flask(__name__)
 
 # if os.environ.get("FLASK_ENV") == "production":    
@@ -90,7 +92,7 @@ def weightedWords():
         param.filterLang = filterlang
     
         words = dict.findWords(param);
-        weight_classifier = SynsetClassifier(text, lang, nlp[lang])
+        weight_classifier = SynsetClassifier(text, nlp[lang])
         results = []
         for word in words:
             result = WeightedWord()
@@ -151,7 +153,10 @@ def tokenizeSentence():
         return Response(response='{"message":"' + message + '"}', status=404, mimetype="application/json")
 
     sent = unquote(sent)
-    txtProcessor = TextProcessor(hasNamedEntities=True, spacyModel=nlp[lang])            
+    txtProcessor = TextProcessor()     
+    sub_lang = detect(sent)
+    if sub_lang in ['en', lang]:
+        lang = sub_lang       
     return Response(WordEncoder().encode([txtProcessor.tokenizeSentence(sent, lang, nlp[lang])]), mimetype='application/json')
 
 def __get_rdf_response(url, lang):
@@ -163,14 +168,18 @@ def __get_rdf_response(url, lang):
         literals = RdfHelper.get_literals_in_rdf_graph(graph, lang)
         result.rdfLiterals = literals[0]
         result.rdfNonLiterals = RdfHelper.get_non_literals_in_rdf_graph(graph)        
-        txtProcessor = TextProcessor(hasNamedEntities=True, spacyModel=nlp[lang])
+        txtProcessor = TextProcessor()
         for literal in result.rdfLiterals:                                    
-            literal.lang = literals[1]
+            literal.lang = literals[1]            
             try:
+                sub_lang = detect(literal.text)
+                if sub_lang in ['en', literal.lang]:
+                    literal.lang = sub_lang
                 literal.contextWords = txtProcessor.tokenizeSentence(literal.text, literal.lang, nlp[literal.lang])                    
             except:    
                 word = ContextWord()
                 word.name = literal.text
+                word.lang = literal.lang
                 literal.contextWords = [word]
 
         return Response(WordEncoder().encode(result), mimetype='application/json')
@@ -201,16 +210,23 @@ def tokenizeUrl():
             return rdf_response
 
     try:           
+        lang_copy = lang
         response = requests.get(url)                
         result = ContextWordWrapper()        
-        txtProcessor = TextProcessor(lang, hasNamedEntities=True, spacyModel=nlp[lang])               
+        txtProcessor = TextProcessor()               
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')                        
             elements = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'])
             for element in elements:    
                 text = element.text.strip()    
                 result.text += text
-                contextWords = txtProcessor.tokenizeSentence(text, lang)                        
+                try:
+                    sub_lang = detect(text)
+                    if sub_lang in ['en', lang_copy]:
+                        lang_copy = sub_lang
+                except:
+                    lang_copy = lang                    
+                contextWords = txtProcessor.tokenizeSentence(text, lang_copy, nlp[lang_copy])                        
                 result.contextWords.append(contextWords)                            
         else:
             returnError(url, response.status_code, '')        

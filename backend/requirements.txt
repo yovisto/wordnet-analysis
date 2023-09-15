@@ -8,3 +8,4 @@ requests
 gunicorn
 Flask
 Flask-Cors
+langdetect

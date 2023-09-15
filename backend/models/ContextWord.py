@@ -6,3 +6,4 @@ class ContextWord(BaseWord):
         self.lemma = ''
         self.whitespace = ''
         self.dbPediaUrl = ''
+        self.lang = 'en'

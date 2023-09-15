@@ -1,7 +1,8 @@
 <div *ngIf="results && filteredData">
 
-    <div>        
-        <input class="filter-results" type="text" placeholder="filter results ..." (keyup)="filterTable($event)" autofocus>                
+    <div>
+        <input class="filter-results" type="text" placeholder="filter results ..." (keyup)="filterTable($event)"
+            autofocus>
     </div>
     <table>
         <tbody>
@@ -10,8 +11,8 @@
                     <a (click)="onUrlClick(literal.predicate)">{{literal.predicate}}</a>
                 </td>
                 <td>
-                    <app-text-analyse-result [results]="[literal.contextWords]" [text]="literal.text"
-                        [lang]="literal.lang" [isDialog]="true" (clickUrlInsideDialog)="onUrlClick($event)">
+                    <app-text-analyse-result [results]="[literal.contextWords]" [text]="literal.text" [isDialog]="true"
+                        (clickUrlInsideDialog)="onUrlClick($event)">
                     </app-text-analyse-result>
                 </td>
             </tr>

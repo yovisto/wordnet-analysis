@@ -4,22 +4,17 @@ from helpers.CommonHelper import CommonHelper
 import spacy_dbpedia_spotlight
 
 class SpacyPosTagger(PosTagger):    
-    def __init__(self, lang, hasNamedEntities=False, spacyModel = None):
-        if spacyModel == None:        
-            self.nlp = spacy.load(CommonHelper.getSpacyModelName(lang))
-        else:
-            self.nlp = spacyModel
-
-        self.hasNamedEntities = hasNamedEntities
-        if self.hasNamedEntities and spacyModel == None:
-            self.nlp.add_pipe('dbpedia_spotlight', config={'confidence': 0.99}, last=True)
+    def __init__(self, spacyModel):        
+        self.nlp = spacyModel        
 
     def tagText(self, textToTag):                  
         result = []
         dbpedia_entities = []
+        if not textToTag:
+            return (result, dbpedia_entities)    
         try: 
             words = self.nlp(textToTag)                                            
-            if self.hasNamedEntities:
+            if "dbpedia_spotlight" in self.nlp.pipe_names:
                 for word in [ent for ent in words.ents if ent.label_ == 'DBPEDIA_ENT']:                        
                     dbpedia_entities.append((word.text, "NOUN", word.lemma_, "", word._.dbpedia_raw_result['@URI']))
             
