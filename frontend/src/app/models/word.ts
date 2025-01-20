@@ -4,7 +4,7 @@ import { LinguisticCounter } from "./linguistic-counter";
 
 export interface Word extends BaseWord {
     identifier: "Word";
-    definition: string;
+    definition: string;    
     example: string;
     synonyms: string[];
     linguisticCounter: LinguisticCounter;

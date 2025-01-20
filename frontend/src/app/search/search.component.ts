@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ImageInputParams } from '../models/image-input-params';
 import { InputParams } from '../models/input-params';
@@ -6,12 +6,16 @@ import { WeightedWord } from '../models/weighted-word';
 import { Word } from '../models/word';
 import { WordnetService } from '../services/wordnet.service';
 
+interface StringDictionary {
+  [key: string]: string;
+}
+
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
-  styleUrls: ['./search.component.css']
+  styleUrls: ['./search.component.css']  
 })
-export class SearchComponent implements AfterViewInit, OnDestroy {
+export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {  
 
   @Input() inputParams!: InputParams;
   @Input() fromText!: string;
@@ -21,6 +25,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy {
   title!: string;
   inputParamsHistory: Array<[InputParams, string]> = new Array<[InputParams, string]>;
   loading: boolean = false;
+  langIconClassLookup: StringDictionary = {};
 
   private onDestroy$: Subject<void> = new Subject<void>();
 
@@ -68,7 +73,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy {
   getWords(word: Word | WeightedWord, category: string): void {
     this.inputParamsHistory.push([this.inputParams, this.title]);
     this.title = `${category}: ${word.name}(${word.pos})`;
-    this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, filterlang: word.lang, category: category });
+    this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, filterlang: this.inputParams.filterlang, category: category });
     this.search(false);
   }
 
@@ -122,6 +127,18 @@ export class SearchComponent implements AfterViewInit, OnDestroy {
     if (this.inputParams) {
       this.refreshView();
     }
+  }
+
+  ngOnInit(): void {
+    this.langIconClassLookup = {
+      'en': 'fi fi-gb', 
+      'de': 'fi fi-de',
+      'fr': 'fi fi-fr',
+      'es': 'fi fi-es',
+      'it': 'fi fi-it',
+      'nl': 'fi fi-nl',
+      'pt': 'fi fi-pt'    
+    };    
   }
 
   ngOnDestroy(): void {

@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TextAnalyseComponent } from './text-analyse/text-analyse.component';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -21,23 +20,15 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 import { SearchWrapperComponent } from './search-wrapper/search-wrapper.component';
-import { TextAnalyseResultRdfComponent } from './text-analyse-result-rdf/text-analyse-result-rdf.component';
-import { TextAnalyseResultComponent } from './text-analyse-result/text-analyse-result.component';
-import { TextAnalyseUrlComponent } from './text-analyse-url/text-analyse-url.component';
-import { RdfDlgWrapperComponentComponent } from './rdf-dlg-wrapper-component/rdf-dlg-wrapper-component.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    TextAnalyseComponent,
+    AppComponent,    
     SearchComponent,
     SearchComponentDlgWrapperComponent,
-    ImageViewerComponent,
-    TextAnalyseUrlComponent,
-    SearchWrapperComponent,
-    TextAnalyseResultComponent,
-    LoadingSpinnerComponent,    
-    TextAnalyseResultRdfComponent, RdfDlgWrapperComponentComponent
+    ImageViewerComponent,    
+    SearchWrapperComponent,    
+    LoadingSpinnerComponent,        
   ],
   imports: [
     BrowserModule,

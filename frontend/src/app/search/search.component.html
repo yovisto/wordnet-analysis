@@ -16,8 +16,8 @@
     <mat-accordion>
         <mat-expansion-panel *ngFor="let word of words; first as isFirst" [expanded]="isFirst">
             <mat-expansion-panel-header>
-                <mat-panel-title>
-                    {{word.name}} ({{word.pos}})
+                <mat-panel-title>                    
+                    <span [class]="langIconClassLookup[word.lang]"></span> <span class="span-padding">{{word.name}} ({{word.pos}})</span>
                 </mat-panel-title>
                 <mat-panel-description title="{{word.definition}}">
                     {{word.definition.substring(0, 120)}} ...
@@ -29,6 +29,30 @@
             <p *ngIf="word.example">
                 <strong>Example: </strong>{{word.example}}
             </p>
+            <ul>
+                <li *ngIf="word.lang != 'en'">
+                    <span [class]="langIconClassLookup['en']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['en'].split(",").join(", ")}}</span>
+                </li>
+                <li *ngIf="word.lang != 'de'">
+                    <span [class]="langIconClassLookup['de']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['de'].split(",").join(", ")}}</span>
+                </li>    
+                <li *ngIf="word.lang != 'fr'">
+                    <span [class]="langIconClassLookup['fr']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['fr'].split(",").join(", ")}}</span>
+                </li>
+                <li *ngIf="word.lang != 'es'">
+                    <span [class]="langIconClassLookup['es']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['es'].split(",").join(", ")}}</span>
+                </li>
+                <li *ngIf="word.lang != 'it'">
+                    <span [class]="langIconClassLookup['it']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['it'].split(",").join(", ")}}</span>
+                </li>
+                <li *ngIf="word.lang != 'nl'">
+                    <span [class]="langIconClassLookup['nl']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['nl'].split(",").join(", ")}}</span>
+                </li>
+                <li *ngIf="word.lang != 'pt'">
+                    <span [class]="langIconClassLookup['pt']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['pt'].split(",").join(", ")}}</span>
+                </li>
+            </ul>
+                                
             <p *ngIf="word.identifier == 'WeightedWord'">
                 <strong>Weight: </strong>{{word.weight.toFixed(2)}}
             </p>

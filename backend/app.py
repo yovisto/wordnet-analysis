@@ -25,7 +25,6 @@ import requests
 import re
 from rdflib.namespace import _SKOS, _RDFS
 from config import cors_dev_config, cors_prod_config
-from spacy_config import create_pipeline_de, create_pipeline_en
 
 from langdetect import detect
 
@@ -37,10 +36,6 @@ app = Flask(__name__)
 #     CORS(app, resources={r"/api/*": cors_dev_config})        
 
 # dictionary endpoints
-
-nlp = {}
-nlp['en'] = create_pipeline_en()
-nlp['de'] = create_pipeline_de()
 
 @app.route('/api/dict/words/', methods=['GET'])
 @cross_origin()
@@ -131,110 +126,7 @@ def getImage():
 
     return send_file(filePath, mimetype='image/png')    
 
-# General text analysis endpoints
-@app.route('/api/shared/tokenize/sentence/', methods=['GET'])
-@cross_origin()
-def tokenizeParagraph():
-    paragraph = request.args['paragraph'] if 'paragraph' in request.args else None
-    if paragraph is None:
-        message = "Invalid argument list: 'paragraph' is required"
-        return Response(response='{"message":"' + message + '"}', status=404, mimetype="application/json")
 
-    paragraph = unquote(paragraph)
-    return Response(WordEncoder().encode(nltk.sent_tokenize(paragraph)), mimetype='application/json')
-
-@app.route('/api/shared/tokenize/word/', methods=['POST'])
-@cross_origin()
-def tokenizeSentence():    
-    lang = request.json['lang']
-    sent = request.json['sent']
-    if None in [lang, sent]:
-        message = "Invalid argument list: 'lang' and 'sent' required"
-        return Response(response='{"message":"' + message + '"}', status=404, mimetype="application/json")
-
-    sent = unquote(sent)
-    txtProcessor = TextProcessor()     
-    sub_lang = detect(sent)
-    if sub_lang in ['en', lang]:
-        lang = sub_lang       
-    return Response(WordEncoder().encode([txtProcessor.tokenizeSentence(sent, lang, nlp[lang])]), mimetype='application/json')
-
-def __get_rdf_response(url, lang):
-    accept_headers = ['application/rdf+xml', 'text/turtle', 'application/ld+json']
-    graph = RdfHelper.get_rdf_graph(url, accept_headers)
-    if graph:
-        result = ContextWordWrapper()
-        result.is_rdf = True
-        literals = RdfHelper.get_literals_in_rdf_graph(graph, lang)
-        result.rdfLiterals = literals[0]
-        result.rdfNonLiterals = RdfHelper.get_non_literals_in_rdf_graph(graph)        
-        txtProcessor = TextProcessor()
-        for literal in result.rdfLiterals:                                    
-            literal.lang = literals[1]            
-            try:
-                sub_lang = detect(literal.text)
-                if sub_lang in ['en', literal.lang]:
-                    literal.lang = sub_lang
-                literal.contextWords = txtProcessor.tokenizeSentence(literal.text, literal.lang, nlp[literal.lang])                    
-            except:    
-                word = ContextWord()
-                word.name = literal.text
-                word.lang = literal.lang
-                literal.contextWords = [word]
-
-        return Response(WordEncoder().encode(result), mimetype='application/json')
-    
-    return None
-
-
-@app.route('/api/shared/tokenize/url/', methods=['POST'])
-@cross_origin()
-def tokenizeUrl():    
-    def returnError(url, status_code, msg):
-        message = f"Failed to parse url: {url} - {msg}"
-        return Response(response='{"message":"' + message + '"}', status=status_code, mimetype="application/json")    
-    
-    lang = request.json['lang']
-    url = request.json['url']
-    if None in [lang, url]:
-        message = "Invalid argument list: 'lang' and 'url' required"
-        return Response(response='{"message":"' + message + '"}', status=404, mimetype="application/json")
-
-    rdf_response = __get_rdf_response(url, lang)
-    if rdf_response:
-        return rdf_response
-    
-    if 'dbpedia.org/resource' in url:        
-        rdf_response = __get_rdf_response(url.replace(url.split('dbpedia.org', 1)[0], 'https://'), lang)
-        if rdf_response:
-            return rdf_response
-
-    try:           
-        lang_copy = lang
-        response = requests.get(url)                
-        result = ContextWordWrapper()        
-        txtProcessor = TextProcessor()               
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')                        
-            elements = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'])
-            for element in elements:    
-                text = element.text.strip()    
-                result.text += text
-                try:
-                    sub_lang = detect(text)
-                    if sub_lang in ['en', lang_copy]:
-                        lang_copy = sub_lang
-                except:
-                    lang_copy = lang                    
-                contextWords = txtProcessor.tokenizeSentence(text, lang_copy, nlp[lang_copy])                        
-                result.contextWords.append(contextWords)                            
-        else:
-            returnError(url, response.status_code, '')        
-        
-        return Response(WordEncoder().encode(result), mimetype='application/json')
-
-    except requests.RequestException as e:
-        returnError(url, 500, e)
 
     
 

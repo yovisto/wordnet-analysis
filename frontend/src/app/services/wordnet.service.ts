@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { Word } from '../models/word';
-import { InputParams } from '../models/input-params';
 import { ImageInputParams } from '../models/image-input-params';
+import { InputParams } from '../models/input-params';
 import { WeightedWord } from '../models/weighted-word';
+import { Word } from '../models/word';
 
 
 @Injectable({
@@ -37,7 +37,8 @@ export class WordnetService {
           results.forEach(x => {
             x.identifier = "Word"
           });
-          return results
+          
+          return results.sort((a, b)=> a.lang.localeCompare(b.lang));
         }),
         catchError(this.handleError<Word[]>('getWords', []))
       );
