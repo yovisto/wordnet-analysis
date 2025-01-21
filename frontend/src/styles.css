@@ -5,6 +5,13 @@
 
 @import 'material-icons/iconfont/material-icons.css';
 
+
+html, body {
+  height: 100%; /* Ensure the html and body take full height */
+  margin: 0; /* Remove default margin */
+}
+
+
 h1 {
   color: #264D73;
   font-size: 2.5rem;
@@ -24,6 +31,14 @@ body {
   padding: .5rem;
   max-width: 1000px;
   margin: auto;
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+}
+
+
+/* Main content area */
+app-root {
+  flex: 1; /* Allow the main content to grow and take available space */
 }
 
 @media (min-width: 600px) {
@@ -96,4 +111,29 @@ input[type="text"] {
   box-sizing: border-box;
   width: 100%;
   padding: .5rem;
+}
+
+.footer-content {
+  display: flex; /* Use flexbox to center content */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  flex-direction: column; /* Stack items vertically */
+  width: 100%;
+  margin: 0 auto; /* Center the footer content */  
+}
+
+table {
+  margin: 20px auto; /* Center the table */
+  border-collapse: collapse; /* Optional: for better table styling */ 
+}
+
+td {
+  padding: 10px; /* Padding for table cells */
+  text-align: left; /* Center text in cells */
+}
+
+
+img {
+  max-width:180px;
+  max-height:180px;
 }
