@@ -20,6 +20,7 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 import { SearchWrapperComponent } from './search-wrapper/search-wrapper.component';
+import { ImagePopupComponent } from './image-popup/image-popup.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,7 @@ import { SearchWrapperComponent } from './search-wrapper/search-wrapper.componen
     SearchComponentDlgWrapperComponent,
     ImageViewerComponent,    
     SearchWrapperComponent,    
-    LoadingSpinnerComponent,        
+    LoadingSpinnerComponent, ImagePopupComponent,        
   ],
   imports: [
     BrowserModule,

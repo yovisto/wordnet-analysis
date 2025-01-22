@@ -5,13 +5,14 @@
         </a>
     </span>
     {{title}}
-    <span *ngIf="words.length > 0">
-        <a title="search results diagram" [routerLink]="['/image']" [queryParams]="imageParams" target="_blank">
+    <span *ngIf="words.length > 0">        
+        <a title="search results diagram" (click)="showImage(null)">
             <mat-icon>photo</mat-icon>
         </a>
     </span>
 </h2>
 <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<app-image-popup #popup></app-image-popup>
 <div *ngIf="!loading" class="search-results">
     <mat-accordion>
         <mat-expansion-panel *ngFor="let word of words; first as isFirst" [expanded]="isFirst">
@@ -57,7 +58,7 @@
                 <strong>Weight: </strong>{{word.weight.toFixed(2)}}
             </p>
             <span>
-                <a title="diagram" [routerLink]="['/image']" [queryParams]="getImageParams(word.wordKey)"
+                <a title="diagram" (click)="showImage(word)"
                     target="_blank">
                     <mat-icon>photo</mat-icon>
                 </a>

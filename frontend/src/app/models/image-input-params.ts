@@ -6,5 +6,6 @@ export interface ImageInputParams {
     filterLangs: string | undefined,
     synonymCount: number | undefined,
     hierarchy: string | undefined,
-    partWhole: string | undefined
+    partWhole: string | undefined,   
+    lang: string | undefined   
 }

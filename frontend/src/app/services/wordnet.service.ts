@@ -35,7 +35,13 @@ export class WordnetService {
         tap(_ => this.log('fetched words')),
         map((results: Word[]) => {
           results.forEach(x => {
-            x.identifier = "Word"
+            x.identifier = "Word";
+            const woi = params.woi ? params.woi : "";
+            if (x.synonyms.includes(woi)) {
+              x.synonyms.push(x.name);
+              x.synonyms = x.synonyms.filter(item => item !== woi);
+              x.name = woi;
+            }
           });
           
           return results.sort((a, b)=> a.lang.localeCompare(b.lang));

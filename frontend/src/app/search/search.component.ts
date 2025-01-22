@@ -1,13 +1,18 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ImageInputParams } from '../models/image-input-params';
 import { InputParams } from '../models/input-params';
 import { WeightedWord } from '../models/weighted-word';
 import { Word } from '../models/word';
 import { WordnetService } from '../services/wordnet.service';
+import { ImagePopupComponent } from '../image-popup/image-popup.component';
 
 interface StringDictionary {
   [key: string]: string;
+}
+
+interface DataObject {
+  [key: string]: any; // This allows for any property with any value type
 }
 
 @Component({
@@ -16,7 +21,8 @@ interface StringDictionary {
   styleUrls: ['./search.component.css']  
 })
 export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {  
-
+  @ViewChild('popup') popup!: ImagePopupComponent;
+  
   @Input() inputParams!: InputParams;
   @Input() fromText!: string;
 
@@ -42,6 +48,50 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     synsetId.pop();
     result.synsetId = synsetId.join('-');
     return result;
+  }
+
+  private getMostFrequentValue<T extends DataObject>(arr: T[], property: keyof T): T[keyof T] | null {
+    const frequencyMap: Record<string, number> = {};
+    
+    arr.forEach(obj => {
+        const value = obj[property];
+        if (value !== undefined) {
+            frequencyMap[value] = (frequencyMap[value] || 0) + 1;
+        }
+    });
+
+    let mostFrequentValue: T[keyof T] | null = null;
+    let maxCount = 0;
+
+    for (const [value, count] of Object.entries(frequencyMap)) {
+        if (count > maxCount) {
+            maxCount = count;
+            mostFrequentValue = value as T[keyof T];
+        }
+    }
+
+    return mostFrequentValue;
+  }
+
+
+  showImage(word: Word | WeightedWord | null) {
+    const result = { ...this.imageParams };
+    if (word != null) {      
+      const synsetId = word.wordKey.split('.').reverse();
+      synsetId.pop();
+      result.synsetId = synsetId.join('-');  
+      result.filterLangs = word.lang;      
+    }
+    else {
+     result.filterLangs = this.getMostFrequentValue(this.words, 'lang') as string;     
+    }
+    result.lang = result.filterLangs
+    
+    if (result && result.synsetId) {
+      result.fileName = `hierarchy_partwhole${Date.now()}${[result.lang].join('_')}_${this.imageParams.level}_${this.imageParams.maxLeafNodes}${this.imageParams.synonymCount}`;            
+      this.popup.open(result);                  
+    }
+
   }
 
   setInputParams(inputParams: InputParams): void {
@@ -91,7 +141,8 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
         level: 2,
         maxLeafNodes: 5,
         synonymCount: 1,
-        filterLangs: 'de',
+        filterLangs: 'en',
+        lang: 'en',
         hierarchy: "True",
         partWhole: "True"
       });

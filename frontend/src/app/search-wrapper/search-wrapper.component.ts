@@ -22,7 +22,7 @@ export class SearchWrapperComponent {
   onSearch(): void {
     const woi = this.searchForm.controls['searchText'].value as string
     if (woi) {
-      const filterlang = 'de, fr, es, it, nl, pt'
+      const filterlang = 'en, de, fr, es, it, nl, pt'
       this.searchComponent.setInputParams(Object.assign({ woi: woi, filterlang: filterlang }));
       this.searchForm.controls['searchText'].setValue('');
     }
