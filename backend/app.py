@@ -1,32 +1,19 @@
 
-import os
-from urllib.parse import unquote
 
 from flask import Flask
 from flask import Response
 from flask import request, send_file
-from flask_cors import CORS, cross_origin
+from flask_cors import cross_origin
 
 from passivlingo_dictionary.Dictionary import Dictionary
 from passivlingo_dictionary.models.SearchParam import SearchParam
 
-import nltk
 from encoders.WordEncoder import WordEncoder
 from helpers.SynsetClassifier import SynsetClassifier
-from helpers.TextProcessor import TextProcessor
-from models.ContextWord import ContextWord
-from models.ContextWordWrapper import ContextWordWrapper
 from models.WeightedWord import WeightedWord
 
-from helpers.RdfHelper import RdfHelper
 from imageCreation.CombinedImageWrapper import main
-from bs4 import BeautifulSoup
-import requests
-import re
-from rdflib.namespace import _SKOS, _RDFS
-from config import cors_dev_config, cors_prod_config
 
-from langdetect import detect
 
 app = Flask(__name__)
 
@@ -66,46 +53,6 @@ def words():
         return Response(WordEncoder().encode(dict.findWords(param)), mimetype='application/json')
     except ValueError as err:
         return Response(response='{"message":"' + format(err) + '"}', status=404, mimetype="application/json")
-
-@app.route('/api/dict/words/weighted', methods=['POST'])
-@cross_origin()
-def weightedWords():        
-    lang = request.json['lang']
-    filterlang = request.json['filterlang']
-    woi = request.json['woi'] 
-    lemma = request.json['lemma']
-    pos = request.json['pos']        
-    text = request.json['text']
-
-    try:
-        dict = Dictionary()
-        param = SearchParam()    
-        param.lang = lang
-        param.woi = woi
-        param.lemma = lemma
-        param.pos = pos
-        param.filterLang = filterlang
-    
-        words = dict.findWords(param);
-        weight_classifier = SynsetClassifier(text, nlp[lang])
-        results = []
-        for word in words:
-            result = WeightedWord()
-            result = word
-            param = SearchParam()
-            param.lang = lang
-            param.filterLang = filterlang
-            param.wordkey = word.wordKey
-            param.category = 'hypernym'
-            hypernyms = dict.findWords(param)
-
-            hypernyms_flat = [item for sublist in [x.synonyms for x in hypernyms] for item in sublist]
-            result.weight = weight_classifier.classify(result.synonyms, list(set(hypernyms_flat)))
-            results.append(result)
-        
-        return Response(WordEncoder().encode(results), mimetype='application/json')
-    except ValueError as err:
-        return Response(response='{"message":"' + format(err) + '"}', status=404, mimetype="application/json")    
 
 @app.route('/api/dict/examples/', methods=['GET'])
 @cross_origin()

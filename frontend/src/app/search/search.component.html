@@ -25,7 +25,10 @@
                 </mat-panel-description>
             </mat-expansion-panel-header>
             <p *ngIf="word.synonyms.length > 0">
-                <strong>Synonyms: </strong>{{word.synonyms.join(', ')}}
+                <strong>Synonyms: </strong>
+                <ng-container *ngFor="let item of word.synonyms; let last = last">
+                    <a (click)="getWords(word, 'synonym', item)">{{ item }}</a><span *ngIf="!last">, </span>
+                  </ng-container>
             </p>
             <p *ngIf="word.example">
                 <strong>Example: </strong>{{word.example}}
@@ -53,10 +56,7 @@
                     <span [class]="langIconClassLookup['pt']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['pt'].split(",").join(", ")}}</span>
                 </li>
             </ul>
-                                
-            <p *ngIf="word.identifier == 'WeightedWord'">
-                <strong>Weight: </strong>{{word.weight.toFixed(2)}}
-            </p>
+                                            
             <span>
                 <a title="diagram" (click)="showImage(word)"
                     target="_blank">
