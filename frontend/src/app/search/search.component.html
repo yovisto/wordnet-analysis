@@ -63,6 +63,12 @@
                     <mat-icon>photo</mat-icon>
                 </a>
             </span>
+            <span *ngIf="word.lang === 'en'">
+                <a title="LOD View" href="https://edu.yovisto.com/resource/wordnet/en/id/oewn-{{word.offset}}-{{word.wordKey.split('.')[1]}}"
+                    target="_blank">
+                    <mat-icon>share</mat-icon>
+                </a>
+            </span>
             <span *ngIf="word.linguisticCounter.hypernym > 0">
                 <a title="hypernyms: words with broader meaning" (click)="getWords(word, 'hypernym')">
                     <mat-icon>border_top</mat-icon>

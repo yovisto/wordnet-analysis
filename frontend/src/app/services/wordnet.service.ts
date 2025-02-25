@@ -45,7 +45,10 @@ export class WordnetService {
             }
           });
 
-          return results.sort((a, b) => a.lang.localeCompare(b.lang));
+          results = results.sort((a, b) => a.lang.localeCompare(b.lang));
+          const matchingObjects = results.filter(x => x.lang === "en");          
+          const remainingObjects = results.filter(x => x.lang != "en");          
+          return [...matchingObjects, ...remainingObjects];
         }),
         catchError(this.handleError<Word[]>('getWords', []))
       );

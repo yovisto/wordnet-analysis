@@ -130,11 +130,11 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     woi ? this.search(woi) : this.search();
   }
 
-  private process_results(results: Word[], word_key: (string | null) = null): void {
+  private process_results(results: Word[]): void {
     const filteredResults = results.filter(result => result.lang == "en");
     const observer = {
       next: (result: ExampleSentenceResponse) => {
-        this.loading = true;
+        if (!this.loading) {this.loading = true}
         const word = results.find(x => x.wordKey == result.word_key && x.lang == result.lang);
         if (word) {
           word.example = result.sentence;
@@ -144,13 +144,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
         console.error('An error occurred:', err);
       },
       complete: () => {
-        this.loading = false;
-        if (word_key) {
-          const item_of_interest = results.find(word => word.wordKey === word_key);
-          if (item_of_interest) {
-            results = [item_of_interest];            
-          }
-        };
+        this.loading = false;                
         this.words = results;
         if (this.words.length > 0) {
           const fileName = `hierarchy_partwhole${Date.now()}${['de'].join('_')}_2_5_1`;
@@ -186,7 +180,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private search(woi: (string | null) = null): void {
     this.loading = true;    
-    let word_key: (string | null);    
+    let word_key: (string | null) = null;    
     let serviceInputParams = this.inputParams;
     if (woi) {
       if (this.inputParams.wordkey) { word_key = this.inputParams.wordkey }
@@ -197,7 +191,13 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
       .pipe(takeUntil(this.onDestroy$))
       .subscribe({
         next: (results: Word[]) => {
-          this.process_results(results, word_key);
+          if (word_key) {
+            const item_of_interest = results.find(word => word.wordKey === word_key);
+            if (item_of_interest) {
+              results = [item_of_interest];            
+            }
+          };
+          this.process_results(results);
         },
         complete: () => this.loading = false
       });
