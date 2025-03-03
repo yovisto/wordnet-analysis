@@ -7,11 +7,7 @@ from flask_cors import cross_origin
 
 from passivlingo_dictionary.Dictionary import Dictionary
 from passivlingo_dictionary.models.SearchParam import SearchParam
-
 from encoders.WordEncoder import WordEncoder
-from helpers.SynsetClassifier import SynsetClassifier
-from models.WeightedWord import WeightedWord
-
 from imageCreation.CombinedImageWrapper import main
 
 

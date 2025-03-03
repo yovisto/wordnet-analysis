@@ -123,6 +123,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   getWords(word: Word, category: string, woi: (string | null) = null): void {
+    this.words = []
     this.inputParamsHistory.push([this.inputParams, this.title, this.woi]);
     this.title = `${category}: ${word.name}(${word.pos})`;
     this.woi = category == 'synonym' ? woi : null;
