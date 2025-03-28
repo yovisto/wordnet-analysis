@@ -2,7 +2,6 @@ import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, 
 import { concatMap, from, Subject, takeUntil, tap } from 'rxjs';
 import { ImagePopupComponent } from '../image-popup/image-popup.component';
 import { ExampleSentenceResponse } from '../models/example-sentence-response';
-import { ImageInputParams } from '../models/image-input-params';
 import { InputParams } from '../models/input-params';
 import { Word } from '../models/word';
 import { WordnetService } from '../services/wordnet.service';
@@ -12,7 +11,7 @@ interface StringDictionary {
 }
 
 interface DataObject {
-  [key: string]: any; // This allows for any property with any value type
+  [key: string]: any;
 }
 
 @Component({
@@ -27,10 +26,8 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   @Input() fromText!: string;
 
   words: Word[] = [];
-  imageParams!: ImageInputParams;
   title!: string;
-  woi:string | null = null;
-  inputParamsHistory: Array<[InputParams, string, string | null]> = new Array<[InputParams, string, string | null]>;
+  inputHistory: Array<[Word[], InputParams, string]> = new Array<[Word[], InputParams, string]>
   loading: boolean = false;
   langIconClassLookup: StringDictionary = {};
 
@@ -41,14 +38,6 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     private cd: ChangeDetectorRef
   ) {
 
-  }
-
-  getImageParams(wordKey: string): ImageInputParams {
-    const result = { ...this.imageParams };
-    const synsetId = wordKey.split('.').reverse();
-    synsetId.pop();
-    result.synsetId = synsetId.join('-');
-    return result;
   }
 
   private getMostFrequentValue<T extends DataObject>(arr: T[], property: keyof T): T[keyof T] | null {
@@ -74,29 +63,60 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     return mostFrequentValue;
   }
 
-  showImage(word: Word | null) {
-    const result = { ...this.imageParams };
-    if (word != null) {
-      const synsetId = word.wordKey.split('.').reverse();
-      synsetId.pop();
-      result.synsetId = synsetId.join('-');
-      result.filterLangs = word.lang;
-    }
-    else {
-      result.filterLangs = this.getMostFrequentValue(this.words, 'lang') as string;
-    }
-    result.lang = result.filterLangs
+  showImage(words: Word[]) {
+    const filteredWords = words.filter(x => x.pos === "Noun" || x.pos === "Verb");
 
-    if (result && result.synsetId) {
-      result.fileName = `hierarchy_partwhole${Date.now()}${[result.lang].join('_')}_${this.imageParams.level}_${this.imageParams.maxLeafNodes}${this.imageParams.synonymCount}`;
+    if (filteredWords.length > 0) {
+      const result = Object.assign({
+        fileName: "",
+        synsetId: "",
+        maxLeafNodes: 5,
+        synonymCount: 1,
+        level: 2,
+        filterLangs: 'en',
+        lang: 'en',
+        hierarchy: "True",
+        partWhole: "True"
+      });
+      result.synsetId = filteredWords.map(x => {
+        const id = x.wordKey.split('.').reverse();
+        id.pop();
+        return id.join('-');
+      }).join(',');
+      result.filterLangs = this.getMostFrequentValue(filteredWords, 'lang') as string;
+      result.lang = result.filterLangs
+      result.fileName = `hierarchy_partwhole${Date.now()}${[result.lang].join('_')}_${result.level}_${result.maxLeafNodes}_${result.synonymCount}`;
       this.popup.open(result);
     }
 
   }
 
+  getRelatedWords(word: Word): void {
+    if (word.relatedSynsets.length == 0) {
+      const serviceInputParams = Object.assign({ ili: word.ili, lang: word.lang, wordkey: word.wordKey })
+      this.wordnetService.getRelated(serviceInputParams)
+        .pipe(takeUntil(this.onDestroy$))
+        .subscribe({
+          next: (results: Word[]) => {
+            word.relatedSynsets = results;
+          },
+          complete: () => { ; }
+        });
+    }
+  }
+
+  displayRelatedWords(from_word: Word, words: Word[]): void {
+    this.inputHistory.push([this.words, this.inputParams, this.title]);
+    this.title = `similar to: ${from_word.name} (${from_word.pos})`;
+    this.inputParams = Object.assign({ wordkey: from_word.wordKey, lang: from_word.lang, filterlang: this.inputParams.filterlang, category: 'similar to' });
+    this.words = [];
+    words.forEach(item => item.relatedSynsets = []);
+    this.processResults(words);
+  }
+
   setInputParams(inputParams: InputParams): void {
     this.inputParams = inputParams;
-    this.inputParamsHistory = [];
+    this.inputHistory = [];
     this.refreshView();
   }
 
@@ -112,60 +132,80 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     this.cd.detectChanges();
   }
 
+  getOtherLangs(word: Word): string[] {
+    return (this.inputParams.filterlang?.split(',') as string[]).filter(lang => lang !== word.lang);
+  }
+
+  getLangItems(word: Word, lang: string): string[] {
+    return word.genericLanguageDescriptions.descriptionLookup[lang].split(',');
+  }
+
+  getTranslation(word: Word, lang: string, woi: string): void {
+    this.inputHistory.push([this.words, this.inputParams, this.title]);
+    this.title = `translation: ${word.name} (${word.pos})`;
+    this.inputParams = Object.assign({ ili: word.ili, lang: lang, filterlang: this.inputParams.filterlang, category: 'translation' });
+    const serviceInputParams = Object.assign({ ili: word.ili, lang: lang, woi: woi })
+    this.words = [];
+    this.loading = true;
+    this.wordnetService.getWords(serviceInputParams)
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe({
+        next: (results: Word[]) => {
+          this.processResults(results);
+        },
+        complete: () => this.loading = false
+      });
+  }
+
   back(): void {
-    if (this.inputParamsHistory.length > 0) {
-      const p = this.inputParamsHistory.pop() as [InputParams, string,  string | null];
-      this.title = p[1];
-      this.woi = p[2];
-      this.inputParams = Object.assign({}, p[0]);
-      this.search(p[2]);
+    if (this.inputHistory.length > 0) {
+      const p = this.inputHistory.pop() as [Word[], InputParams, string];
+      this.title = p[2];
+      this.inputParams = Object.assign({}, p[1]);
+      this.processResults(p[0], false);
     }
   }
 
-  getWords(word: Word, category: string, woi: (string | null) = null): void {
-    this.words = []
-    this.inputParamsHistory.push([this.inputParams, this.title, this.woi]);
-    this.title = `${category}: ${word.name}(${word.pos})`;
-    this.woi = category == 'synonym' ? woi : null;
-    this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, filterlang: this.inputParams.filterlang, category: category });
-    woi ? this.search(woi) : this.search();
+  hasNounOrVerb(words: Word[]): boolean {
+    const filteredWords = words.filter(x => x.pos === "Noun" || x.pos === "Verb")
+    return filteredWords.length > 0
   }
 
-  private process_results(results: Word[]): void {
-    const filteredResults = results.filter(result => result.lang == "en");
+  getWords(word: Word, category: string, woi: (string | null) = null): void {
+    this.inputHistory.push([this.words, this.inputParams, this.title]);
+    this.title = `${category}: ${word.name} (${word.pos})`;
+    this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, filterlang: this.inputParams.filterlang, category: category });
+    if (category == 'synonym') {
+      const newWord = structuredClone(word) as Word;
+      newWord.synonyms.push(newWord.name);
+      newWord.synonyms = newWord.synonyms.filter(item => item !== woi);
+      newWord.name = woi as string;
+      this.processResults([newWord]);
+    }
+    else {
+      this.search();
+    }
+  }
+
+  private processResults(results: Word[], withSenseExamples: boolean = true): void {
+    const filteredResults = withSenseExamples ? results.filter(result => result.lang == "en") : [];
     const observer = {
       next: (result: ExampleSentenceResponse) => {
-        if (!this.loading) {this.loading = true}
-        const word = results.find(x => x.wordKey == result.word_key && x.lang == result.lang);
-        if (word) {
-          word.example = result.sentence;
+        if (!this.loading) { this.loading = true }
+        if (result) {
+          const word = results.find(x => x.wordKey == result.word_key && x.lang == result.lang);
+          if (word) {
+            word.example = result.sentence;
+          }
         }
       },
       error: (err: any) => {
         console.error('An error occurred:', err);
       },
       complete: () => {
-        this.loading = false;                
+        this.loading = false;
+        results.forEach(item => !item.definition ? item.definition = item.synonyms.join(', ') : item.definition);
         this.words = results;
-        if (this.words.length > 0) {
-          const fileName = `hierarchy_partwhole${Date.now()}${['de'].join('_')}_2_5_1`;
-          const params = Object.assign({
-            fileName: fileName,
-            synsetId: this.words.map(x => {
-              const id = x.wordKey.split('.').reverse();
-              id.pop();
-              return id.join('-');
-            }).join(','),
-            level: 2,
-            maxLeafNodes: 5,
-            synonymCount: 1,
-            filterLangs: 'en',
-            lang: 'en',
-            hierarchy: "True",
-            partWhole: "True"
-          });
-          this.imageParams = params;
-        }
       }
     };
     from(filteredResults).pipe(
@@ -179,26 +219,15 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
       .subscribe(observer);
   }
 
-  private search(woi: (string | null) = null): void {
-    this.loading = true;    
-    let word_key: (string | null) = null;    
-    let serviceInputParams = this.inputParams;
-    if (woi) {
-      if (this.inputParams.wordkey) { word_key = this.inputParams.wordkey }
-      serviceInputParams = Object.assign({ woi: woi, filterlang: this.inputParams.filterlang })
-    }
-    
-    this.wordnetService.getWords(serviceInputParams)
+  private search(): void {
+    this.words = []
+    this.loading = true;
+
+    this.wordnetService.getWords(this.inputParams)
       .pipe(takeUntil(this.onDestroy$))
       .subscribe({
         next: (results: Word[]) => {
-          if (word_key) {
-            const item_of_interest = results.find(word => word.wordKey === word_key);
-            if (item_of_interest) {
-              results = [item_of_interest];            
-            }
-          };
-          this.process_results(results);
+          this.processResults(results);
         },
         complete: () => this.loading = false
       });

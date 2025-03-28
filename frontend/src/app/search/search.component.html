@@ -1,12 +1,12 @@
 <h2>
-    <span *ngIf="inputParamsHistory.length > 0">
+    <span *ngIf="inputHistory.length > 0">
         <a (click)="back()">
             <mat-icon>keyboard_arrow_left</mat-icon>
         </a>
     </span>
     {{title}}
-    <span *ngIf="words.length > 0">        
-        <a title="search results diagram" (click)="showImage(null)">
+    <span *ngIf="hasNounOrVerb(words)">        
+        <a title="search results diagram" (click)="showImage(words)">
             <mat-icon>account_tree</mat-icon>            
         </a>
     </span>
@@ -34,32 +34,21 @@
                 <strong>Example: </strong>{{word.example}}
             </p>
             <ul>
-                <li *ngIf="word.lang != 'en'">
-                    <span [class]="langIconClassLookup['en']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['en'].split(",").join(", ")}}</span>
+                <li *ngFor="let item of getOtherLangs(word)">
+                    <span [class]="langIconClassLookup[item]"></span>     
+                    <span class="span-padding">               
+                    <span *ngFor="let w of getLangItems(word, item); let i = index" class="span-padding-list">
+                        <a (click)="getTranslation(word, item, w)">
+                            <ng-container *ngIf="i >= getLangItems(word, item).length - 1">{{w}}</ng-container> 
+                            <ng-container *ngIf="i < getLangItems(word, item).length - 1">{{w}}, </ng-container> 
+                        </a>                        
+                    </span>
+                </span>
                 </li>
-                <li *ngIf="word.lang != 'de'">
-                    <span [class]="langIconClassLookup['de']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['de'].split(",").join(", ")}}</span>
-                </li>    
-                <li *ngIf="word.lang != 'fr'">
-                    <span [class]="langIconClassLookup['fr']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['fr'].split(",").join(", ")}}</span>
-                </li>
-                <li *ngIf="word.lang != 'es'">
-                    <span [class]="langIconClassLookup['es']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['es'].split(",").join(", ")}}</span>
-                </li>
-                <li *ngIf="word.lang != 'it'">
-                    <span [class]="langIconClassLookup['it']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['it'].split(",").join(", ")}}</span>
-                </li>
-                <li *ngIf="word.lang != 'nl'">
-                    <span [class]="langIconClassLookup['nl']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['nl'].split(",").join(", ")}}</span>
-                </li>
-                <li *ngIf="word.lang != 'pt'">
-                    <span [class]="langIconClassLookup['pt']"></span><span class="span-padding">{{word.genericLanguageDescriptions.descriptionLookup['pt'].split(",").join(", ")}}</span>
-                </li>
-            </ul>
+              </ul>            
                                             
-            <span>
-                <a title="diagram" (click)="showImage(word)"
-                    target="_blank">
+            <span *ngIf="hasNounOrVerb([word])">
+                <a title="diagram" (click)="showImage([word])">
                     <mat-icon>account_tree</mat-icon>            
                 </a>
             </span>
@@ -99,7 +88,54 @@
                     <mat-icon>arrow_forward</mat-icon>
                 </a>
             </span>
+            <br />
+            <br />
+            <div class="bordered-container">
+            <mat-accordion>
+                <mat-expansion-panel class="no-bevel" (opened)="getRelatedWords(word)">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Similar Words
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      list of words closely related to this one
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+
+                  <div *ngIf="word.relatedSynsets.length > 0 else elseLoadingTemplate">
+                    <table>                        
+                        <tbody>
+                          <tr *ngFor="let item of word.relatedSynsets">
+                            <td>{{ [item.name].concat(item.synonyms).join(', ') }}</td>
+                            <td>{{ item.pos }}</td>
+                            <td>{{ item.definition }}</td>
+                            <td>
+                                <a title="view details" (click)="displayRelatedWords(word, [item])">
+                                    <mat-icon>arrow_forward</mat-icon>
+                                </a>                                
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <span *ngIf="hasNounOrVerb([word]) && hasNounOrVerb(word.relatedSynsets)">                      
+                        <a title="diagram" (click)="showImage([word].concat(word.relatedSynsets))">
+                          <mat-icon>account_tree</mat-icon>
+                        </a>
+                      </span>
+                      <span>                      
+                      <a title="view all in new search frame" (click)="displayRelatedWords(word, word.relatedSynsets)">
+                        <mat-icon>arrow_forward</mat-icon>
+                      </a>
+                    </span>
+                  </div>
+                  <ng-template #elseLoadingTemplate>
+                    loading...
+                  </ng-template>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </div>
         </mat-expansion-panel>
+          
     </mat-accordion>
     <p></p>
 </div>

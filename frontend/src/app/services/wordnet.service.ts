@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, tap, timeout } from 'rxjs/operators';
 import { ExampleSentenceResponse } from '../models/example-sentence-response';
 import { ImageInputParams } from '../models/image-input-params';
 import { InputParams } from '../models/input-params';
@@ -30,19 +30,20 @@ export class WordnetService {
   constructor(private http: HttpClient) { }
 
   getWords(params: InputParams): Observable<Word[]> {
-    const query = `?woi=${params.woi || ''}&pos=${params.pos || ''}&lang=${params.lang || ''}&filterlang=${params.filterlang || ''}&lemma=${params.lemma || ''}&category=${params.category || ''}&wordkey=${params.wordkey || ''}`;
+    const query = `?woi=${params.woi || ''}&pos=${params.pos || ''}&lang=${params.lang || ''}&filterlang=${params.filterlang || ''}&lemma=${params.lemma || ''}&category=${params.category || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
     return this.http.get<Word[]>(`${this.wordnet_url}words/${query}`, this.httpOptions)
       .pipe(
         tap(_ => this.log('fetched words')),
         map((results: Word[]) => {
           results.forEach(x => {
             x.identifier = "Word";
+            x.relatedSynsets = [];
             const woi = params.woi ? params.woi : "";
             if (x.synonyms.includes(woi)) {
-              x.synonyms.push(x.name);
-              x.synonyms = x.synonyms.filter(item => item !== woi);
-              x.name = woi;
-            }
+               x.synonyms.push(x.name);
+               x.synonyms = x.synonyms.filter(item => item !== woi);
+               x.name = woi;
+             }
           });
 
           results = results.sort((a, b) => a.lang.localeCompare(b.lang));
@@ -51,6 +52,21 @@ export class WordnetService {
           return [...matchingObjects, ...remainingObjects];
         }),
         catchError(this.handleError<Word[]>('getWords', []))
+      );
+  }
+
+  getRelated(params: InputParams): Observable<Word[]> {
+    const query = `?lang=${params.lang || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
+    return this.http.get<Word[]>(`${this.wordnet_url}related/${query}`, this.httpOptions)
+      .pipe(
+        tap(_ => this.log('fetched related')),
+        map((results: Word[]) => {
+          results.forEach(x => {
+            x.identifier = "Word";            
+          });
+          return results
+        }),
+        catchError(this.handleError<Word[]>('getRelated', []))
       );
   }
 
@@ -85,6 +101,7 @@ export class WordnetService {
     const synset_url = `https://edu.yovisto.com/resource/wordnet/en/id/oewn-${word_key_list[2]}-${word_key_list[1]}`;
     const url = this.sense_example_sentence_url.replace("__X__", synset_url).replace("__Y__", lemma);
     return this.http.get<any>(url).pipe(
+      timeout(200),
       map((response) => {
         return {
           word_key: word_key,

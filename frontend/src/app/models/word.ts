@@ -9,4 +9,5 @@ export interface Word extends BaseWord {
     synonyms: string[];
     linguisticCounter: LinguisticCounter;
     genericLanguageDescriptions: GenericLanguageDescriptions;
+    relatedSynsets: Word[];
 }

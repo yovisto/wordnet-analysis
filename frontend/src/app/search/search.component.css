@@ -22,3 +22,24 @@
  .span-padding {
   margin-left: 5pt;
  }
+
+ .span-padding-list {
+  margin-left: 0pt;
+ }
+
+ table {
+  width: 100%;
+  border-collapse: collapse; 
+}
+
+th, td {
+  padding: 8px; 
+  text-align: left; 
+}
+
+.bordered-container {
+  border: 1px solid #000; 
+  border-radius: 0; 
+  padding: 0; 
+  margin: 0; 
+}

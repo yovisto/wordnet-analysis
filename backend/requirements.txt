@@ -9,3 +9,9 @@ gunicorn
 Flask
 Flask-Cors
 langdetect
+scikit-learn
+scipy
+numpy
+pandas
+wn
+sentence-transformers

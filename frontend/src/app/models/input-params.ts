@@ -5,5 +5,6 @@ export interface InputParams {
     lang: string | undefined,
     filterlang: string | undefined,
     category: string | undefined,
-    wordkey: string | undefined
+    wordkey: string | undefined,
+    ili: string | undefined
 }
