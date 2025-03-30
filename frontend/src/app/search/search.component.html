@@ -117,7 +117,7 @@
                           </tr>
                         </tbody>
                       </table>
-                      <span *ngIf="hasNounOrVerb([word]) && hasNounOrVerb(word.relatedSynsets)">                      
+                      <span *ngIf="hasNounOrVerb(word.relatedSynsets)">                      
                         <a title="diagram" (click)="showImage([word].concat(word.relatedSynsets))">
                           <mat-icon>account_tree</mat-icon>
                         </a>

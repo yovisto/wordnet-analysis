@@ -85,7 +85,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
       }).join(',');
       result.filterLangs = this.getMostFrequentValue(filteredWords, 'lang') as string;
       result.lang = result.filterLangs
-      result.fileName = `hierarchy_partwhole${Date.now()}${[result.lang].join('_')}_${result.level}_${result.maxLeafNodes}_${result.synonymCount}`;
+      result.fileName = `hierarchy_partwhole${Date.now()}_${[result.lang].join('_')}_${result.level}_${result.maxLeafNodes}_${result.synonymCount}`;
       this.popup.open(result);
     }
 
