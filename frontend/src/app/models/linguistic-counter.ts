@@ -1,8 +1,9 @@
 export interface LinguisticCounter {
-    antonym: number;
+    [key: string]: number; 
     hypernym: number;
     hyponym: number;
     holonym: number;
     meronym: number;
+    antonym: number;
     entailment: number;
-}
+  }

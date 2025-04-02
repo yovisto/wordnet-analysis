@@ -14,8 +14,8 @@ import { Word } from '../models/word';
 })
 export class WordnetService {
 
-  private wordnet_url = 'http://127.0.0.1:5000/api/dict/';  // URL to web api
-  private sense_example_sentence_url = "https://edu.yovisto.com/sparql?default-graph-uri=&query=select+distinct+%3Fsentence+where+%7B%0D%0A%3Fs+a+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23LexicalSense%3E+.%0D%0A%3Fs+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23isLexicalizedSenseOf%3E+%3C__X__%3E+.%0D%0A%3Fs+%3Chttps%3A%2F%2Fglobalwordnet.github.io%2Fschemas%2Fwn%23example%3E+%3Fblank+.%0D%0A%3Fblank+rdf%3Avalue+%3Fsentence+.%0D%0A%3Flexical_entry+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23sense%3E+%3Fs+.%0D%0A%3Flexical_entry+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23canonicalForm%3E+%3Fcanon_form+.%0D%0A%3Fcanon_form+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23writtenRep%3E+%3Fwritten_rep.+%0D%0A%0D%0AFILTER%28REGEX%28STR%28%3Fwritten_rep%29%2C+%22__Y__%22%2C+%22i%22%29%29%0D%0A%7D+%0D%0A%0D%0A&format=application%2Fsparql-results%2Bjson&should-sponge=&timeout=0&signal_void=on";
+  private readonly wordnet_url = 'http://127.0.0.1:5000/api/dict/'; 
+  private readonly sense_example_sentence_url = "https://edu.yovisto.com/sparql?default-graph-uri=&query=select+distinct+%3Fsentence+where+%7B%0D%0A%3Fs+a+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23LexicalSense%3E+.%0D%0A%3Fs+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23isLexicalizedSenseOf%3E+%3C__X__%3E+.%0D%0A%3Fs+%3Chttps%3A%2F%2Fglobalwordnet.github.io%2Fschemas%2Fwn%23example%3E+%3Fblank+.%0D%0A%3Fblank+rdf%3Avalue+%3Fsentence+.%0D%0A%3Flexical_entry+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23sense%3E+%3Fs+.%0D%0A%3Flexical_entry+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23canonicalForm%3E+%3Fcanon_form+.%0D%0A%3Fcanon_form+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23writtenRep%3E+%3Fwritten_rep.+%0D%0A%0D%0AFILTER%28REGEX%28STR%28%3Fwritten_rep%29%2C+%22__Y__%22%2C+%22i%22%29%29%0D%0A%7D+%0D%0A%0D%0A&format=application%2Fsparql-results%2Bjson&should-sponge=&timeout=0&signal_void=on";
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -33,27 +33,30 @@ export class WordnetService {
     const query = `?woi=${params.woi || ''}&pos=${params.pos || ''}&lang=${params.lang || ''}&filterlang=${params.filterlang || ''}&lemma=${params.lemma || ''}&category=${params.category || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
     return this.http.get<Word[]>(`${this.wordnet_url}words/${query}`, this.httpOptions)
       .pipe(
-        tap(_ => this.log('fetched words')),
-        map((results: Word[]) => {
-          results.forEach(x => {
-            x.identifier = "Word";
-            x.relatedSynsets = [];
-            const woi = params.woi ? params.woi : "";
-            if (x.synonyms.includes(woi)) {
-               x.synonyms.push(x.name);
-               x.synonyms = x.synonyms.filter(item => item !== woi);
-               x.name = woi;
-             }
-          });
-
-          results = results.sort((a, b) => a.lang.localeCompare(b.lang));
-          const matchingObjects = results.filter(x => x.lang === "en");          
-          const remainingObjects = results.filter(x => x.lang != "en");          
-          return [...matchingObjects, ...remainingObjects];
-        }),
+        tap(() => this.log('Fetched words')),
+        map(results => this.processWords(results, params)),
         catchError(this.handleError<Word[]>('getWords', []))
       );
   }
+
+  private processWords(results: Word[], params: InputParams): Word[] {
+    const woi = params.woi || '';
+    results.forEach(word => {
+      word.identifier = 'Word';
+      word.relatedSynsets = [];
+      if (word.synonyms.includes(woi)) {
+        word.synonyms.push(word.name);
+        word.synonyms = word.synonyms.filter(item => item !== woi);
+        word.name = woi;
+      }
+    });
+
+    results.sort((a, b) => a.lang.localeCompare(b.lang));
+    const matchingObjects = results.filter(word => word.lang === 'en');
+    const remainingObjects = results.filter(word => word.lang !== 'en');
+    return [...matchingObjects, ...remainingObjects];
+  }
+
 
   getRelated(params: InputParams): Observable<Word[]> {
     const query = `?lang=${params.lang || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
@@ -85,6 +88,12 @@ export class WordnetService {
       );
   }
 
+  getAudio(text: string, lang: string): Observable<Blob> {
+    const query = `?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}`;
+    return this.http.get(`${this.wordnet_url}tts/${query}`, { responseType: 'blob' });
+    
+  }  
+
   getExampleSentences(word_key: string): Observable<string[]> {
     return this.http.get<string[]>(`${this.wordnet_url}examples/?wordkey=${word_key}`, this.httpOptions)
       .pipe(
@@ -115,15 +124,9 @@ export class WordnetService {
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-
-      // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
-
-      // TODO: better job of transforming error for user consumption
+      console.error(error); // Log to console
       this.log(`${operation} failed: ${error.message}`);
-
-      // Let the app keep running by returning an empty result.
-      return of(result as T);
+      return of(result as T); // Return an empty result to keep the app running
     };
   }
 

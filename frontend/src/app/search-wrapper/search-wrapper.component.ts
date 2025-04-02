@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AppConfig } from '../config/app-config';
 import { SearchComponent } from '../search/search.component';
 
 @Component({
@@ -11,18 +12,19 @@ export class SearchWrapperComponent {
 
   @ViewChild(SearchComponent, { static: false }) searchComponent!: SearchComponent;
 
-  constructor() {
-
-  }
+  constructor() {}
 
   searchForm = new FormGroup({
     searchText: new FormControl('', Validators.required),
   });
 
+  placeholder = AppConfig.searchPlaceholder;
+  searchButtonText = AppConfig.searchButtonText;
+
   onSearch(): void {
-    const woi = this.searchForm.controls['searchText'].value as string
+    const woi = this.searchForm.controls['searchText'].value as string;
     if (woi) {
-      const filterlang = 'en,de,nl,fr,es,pt,it'
+      const filterlang = AppConfig.filterLang;
       this.searchComponent.setInputParams(Object.assign({ woi: woi, filterlang: filterlang }));
       this.searchForm.controls['searchText'].setValue('');
     }

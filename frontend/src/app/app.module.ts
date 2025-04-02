@@ -1,8 +1,8 @@
-import { NgModule, importProvidersFrom } from '@angular/core';
+import { APP_INITIALIZER, NgModule, importProvidersFrom } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,10 +17,23 @@ import { SearchComponentDlgWrapperComponent } from './search-component-dlg-wrapp
 import { SearchComponent } from './search/search.component';
 
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { ImagePopupComponent } from './image-popup/image-popup.component';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 import { SearchWrapperComponent } from './search-wrapper/search-wrapper.component';
-import { ImagePopupComponent } from './image-popup/image-popup.component';
+
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { firstValueFrom } from 'rxjs';
+import { TranslationService } from './services/translation.service';
+
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+export function preloadTranslationsFactory(translationService: TranslationService) {
+  return () => firstValueFrom(translationService.preloadTranslations());
+}
 
 @NgModule({
   declarations: [
@@ -43,9 +56,26 @@ import { ImagePopupComponent } from './image-popup/image-popup.component';
     MatCardModule,
     MatDialogModule,
     MatIconModule,  
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    })
   ],
   
   bootstrap: [AppComponent],
-  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }, importProvidersFrom([BrowserAnimationsModule])]
+  providers: [
+    { 
+      provide: LocationStrategy, useClass: HashLocationStrategy,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: preloadTranslationsFactory,
+      deps: [TranslationService],
+      multi: true
+    },
+    importProvidersFrom([BrowserAnimationsModule])]
 })
 export class AppModule { }
