@@ -29,8 +29,8 @@ POS_MAPPINGS = {
 # Load model and data
 MODEL = SentenceTransformer("all-MiniLM-L6-v2", device='cpu')
 DF = pd.read_csv('wordnet_txt_embeddings_input.csv', sep='\t', header=0, index_col=None)
-EMBEDDING_ARR = np.load('/home/johann/MyData/embeddings.npy')
-#EMBEDDING_ARR = MODEL.encode(DF['text'])
+#EMBEDDING_ARR = np.load('/home/johann/MyData/embeddings.npy')
+EMBEDDING_ARR = MODEL.encode(DF['text'])
 
 def error_response(message: str, status: int = 400) -> Response:
     return Response(response=f'{{"error": "{message}"}}', status=status, mimetype="application/json")

@@ -14,10 +14,28 @@
 
 <app-loading-spinner *ngIf="loading"></app-loading-spinner>
 <app-image-popup #popup></app-image-popup>
-
+<div *ngIf="totalPages > 1" class="pagination-controls">
+    <span>
+        <a (click)="previousPage()" [class.disabled]="currentPage === 1" aria-label="Previous Page">
+        <mat-icon>chevron_left</mat-icon>
+    </a>
+    </span>    
+    <ng-container *ngFor="let page of getPageNumbers()">
+        <span>
+            <a (click)="goToPage(page)" [class.active]="page === currentPage">
+                {{ page }}
+            </a>
+        </span>
+    </ng-container>
+    <span>
+        <a (click)="nextPage()" [class.disabled]="currentPage === totalPages" aria-label="Next Page">
+            <mat-icon>chevron_right</mat-icon>
+        </a>
+    </span>
+</div>
 <div *ngIf="!loading" class="search-results">
     <mat-accordion>
-        <mat-expansion-panel *ngFor="let word of words; first as isFirst" [expanded]="isFirst">
+        <mat-expansion-panel *ngFor="let word of paginatedWords; first as isFirst" [expanded]="isFirst">
             <mat-expansion-panel-header>
                 <mat-panel-title>
                     <span [class]="langIconClassLookup[word.lang]"></span>
@@ -133,6 +151,26 @@
             </div>
         </mat-expansion-panel>
     </mat-accordion>
+    <br />
+    <div *ngIf="totalPages > 1" class="pagination-controls">
+        <span>
+            <a (click)="previousPage()" [class.disabled]="currentPage === 1" aria-label="Previous Page">
+            <mat-icon>chevron_left</mat-icon>
+        </a>
+        </span>    
+        <ng-container *ngFor="let page of getPageNumbers()">
+            <span>
+                <a (click)="goToPage(page)" [class.active]="page === currentPage">
+                    {{ page }}
+                </a>
+            </span>
+        </ng-container>
+        <span>
+            <a (click)="nextPage()" [class.disabled]="currentPage === totalPages" aria-label="Next Page">
+                <mat-icon>chevron_right</mat-icon>
+            </a>
+        </span>
+    </div>
 </div>
 
 <div *ngIf="words.length === 0 && inputParams && !loading">{{ getWordLangTranslation('SEARCH.NO_RESULTS', 'en') }}</div>

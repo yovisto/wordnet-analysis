@@ -47,6 +47,11 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   @Input() fromText!: string;
 
   words: Word[] = [];
+  paginatedWords: Word[] = []; 
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalPages: number = 0;
+
   title!: string;
   inputHistory: Array<[Word[], string]> = new Array<[Word[], string]>();
   loading: boolean = false;
@@ -123,6 +128,9 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
         this.loading = false;
         results.forEach(item => item.definition ||= item.synonyms.join(', '));
         this.words = results;
+        this.currentPage = 1;
+        this.totalPages = Math.ceil(this.words.length / this.itemsPerPage);
+        this.updatePaginatedWords();
       }
     };
 
@@ -297,4 +305,41 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
       }
     });
   }
+
+  updatePaginatedWords(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedWords = this.words.slice(startIndex, endIndex);
+  }
+  
+  getPageNumbers(): number[] {
+    const totalPages = Math.ceil(this.words.length / this.itemsPerPage);
+    const pageNumbers: number[] = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
+  }
+  
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedWords();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePaginatedWords();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePaginatedWords();
+    }
+  }
+
 }

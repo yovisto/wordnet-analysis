@@ -50,8 +50,18 @@ export class WordnetService {
         word.name = woi;
       }
     });
-
-    results.sort((a, b) => a.lang.localeCompare(b.lang));
+    
+    results.sort((a, b) => {
+      if (a.lang === 'en' && b.lang !== 'en') return -1;
+      if (a.lang !== 'en' && b.lang === 'en') return 1;
+        
+      if (a.lang === b.lang) {
+        return a.name.localeCompare(b.name);
+      }
+    
+      return a.lang.localeCompare(b.lang);
+    });
+    
     const matchingObjects = results.filter(word => word.lang === 'en');
     const remainingObjects = results.filter(word => word.lang !== 'en');
     return [...matchingObjects, ...remainingObjects];
