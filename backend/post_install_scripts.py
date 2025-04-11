@@ -7,7 +7,6 @@ import pandas as pd
 
 EU_DOWNLOAD_URI = 'https://github.com/pssvlng/open-european-wordnets-{type}/raw/main/{lang}_{type}.zip'
 EU_LANGS = ['en', 'de', 'fr', 'es', 'it', 'nl', 'pt']
-EU_LANGS = []
 wn.download('ewn:2020')
 wn.remove('ewn:2020')
 
