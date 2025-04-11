@@ -54,8 +54,23 @@
                                 </a>
                             </span>
                         </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Languages</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div *ngFor="let item of items; trackBy: trackById">
+                                <mat-checkbox
+                                    [ngModel]="imageParams.filterLangs.includes(item.id)"
+                                    (change)="toggleSelection(item.id, $event)">
+                                    {{ item.label }}
+                                </mat-checkbox>
+                            </div>
+                        </td>
                     </tr>                    
                 </table>
+                
             </td>
         </tr>
     </table>

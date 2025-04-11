@@ -13,23 +13,15 @@ from flask_cors import cross_origin
 from passivlingo_dictionary.Dictionary import Dictionary
 from passivlingo_dictionary.models.SearchParam import SearchParam
 from encoders.WordEncoder import WordEncoder
+from helpers.Constants import AUDIO_LANG_MAP, POS_MAPPINGS
 from imageCreation.CombinedImageWrapper import main
 import wn
 
 app = Flask(__name__)
 
-POS_MAPPINGS = {
-    "a": "Adverb",
-    "s": "Adjective",
-    "r": "Adjective",
-    "v": "Verb",
-    "n": "Noun"
-}
-
 # Load model and data
 MODEL = SentenceTransformer("all-MiniLM-L6-v2", device='cpu')
 DF = pd.read_csv('wordnet_txt_embeddings_input.csv', sep='\t', header=0, index_col=None)
-#EMBEDDING_ARR = np.load('/home/johann/MyData/embeddings.npy')
 EMBEDDING_ARR = MODEL.encode(DF['text'])
 
 def error_response(message: str, status: int = 400) -> Response:
@@ -158,6 +150,9 @@ def text_to_speech():
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
             filename = temp_file.name
+
+        if lang in AUDIO_LANG_MAP:
+            lang = AUDIO_LANG_MAP[lang]
 
         tts = gTTS(text=text, lang=lang)
         tts.save(filename)

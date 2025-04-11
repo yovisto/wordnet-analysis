@@ -32,22 +32,24 @@ def main(argv):
         synonym_count = int(argvTransform['synonymCount'])
         is_hierarchy = bool(argvTransform['hierarchy'])
         is_partWhole = bool(argvTransform['partWhole'])
+        woi = argvTransform['woi']
         rankdir = 'BT'
         body = ''
         body1 = ''
 
         synsets = []        
         for synset_id in argvTransform['synsetId'].split(','):
-            synsets.append(OwnSynsetWrapper(None, wn.synset(synset_id)))
+            loc_synset = wn.synset(synset_id)
+            synsets.append(OwnSynsetWrapper(loc_synset.lexicon().language, loc_synset))
 
         if is_hierarchy:
-            body = build_body(synsets, level, filter_langs,
+            body = build_body(synsets, woi, level, filter_langs,
                               synonym_count, branch_count, 'is a', hierarchy_build)
         else:
             rankdir = 'RL'
 
         if is_partWhole:
-            body1 = build_body(synsets, level, filter_langs,
+            body1 = build_body(synsets, woi, level, filter_langs,
                                 synonym_count, branch_count, 'has a', partWhole_build)
 
         combined_template = '''strict digraph g {
@@ -65,7 +67,7 @@ def main(argv):
         font_name = getFontName(filter_langs)
         root = ''
         for synset in synsets:
-            root = f'{root}"{formatNodeDisplay(synset, filter_langs, synset.ili, synonym_count)}" [fontname={font_name} shape=box, style=bold];'
+            root = f'{root}"{formatNodeDisplay(synset, woi, filter_langs, synset.ili, synonym_count)}" [fontname={font_name} shape=box, style=bold];'
         writeOutput(combined_template, root, body, font_name,
                     dotFilePath, pngFilePath, data, body1=body1, rankdir=rankdir)
 
@@ -79,10 +81,10 @@ def main(argv):
         return data
 
 
-def build_body(synsets, level, filter_langs, synonym_count, branch_count, edge_label, func):
+def build_body(synsets, woi, level, filter_langs, synonym_count, branch_count, edge_label, func):
     result = ''
     for synset in synsets:
-        result = f'{result} {func(synset, level, filter_langs, synset.ili, synonym_count, branch_count, True, edge_label)}{func(synset, level, filter_langs, synset.ili, synonym_count, branch_count, False, edge_label)}'
+        result = f'{result} {func(synset, woi, level, filter_langs, synset.ili, synonym_count, branch_count, True, edge_label)}{func(synset, woi, level, filter_langs, synset.ili, synonym_count, branch_count, False, edge_label)}'
 
     return result
 

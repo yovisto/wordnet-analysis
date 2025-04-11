@@ -3,7 +3,7 @@ export interface InputParams {
     pos: string | undefined,
     lemma: string | undefined,
     lang: string | undefined,
-    filterlang: string | undefined,
+    availableLangs: string [],
     category: string | undefined,
     wordkey: string | undefined,
     ili: string | undefined

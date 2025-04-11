@@ -3,9 +3,10 @@ export interface ImageInputParams {
     fileName: string | undefined,
     level: number | undefined,
     maxLeafNodes: number | undefined,
-    filterLangs: string | undefined,
+    availableLangs: string[],
     synonymCount: number | undefined,
     hierarchy: string | undefined,
     partWhole: string | undefined,   
-    lang: string | undefined   
+    filterLangs: string[],
+    woi: string | undefined, 
 }

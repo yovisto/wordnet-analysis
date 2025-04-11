@@ -1,5 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { from, mergeMap, Subject, takeUntil, tap } from 'rxjs';
+import { LANG_ICON_CLASS_LOOKUP } from '../constants/lang-icon-lookup';
 import { ImagePopupComponent } from '../image-popup/image-popup.component';
 import { ExampleSentenceResponse } from '../models/example-sentence-response';
 import { InputParams } from '../models/input-params';
@@ -21,33 +22,13 @@ interface DataObject {
   styleUrls: ['./search.component.css']
 })
 export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
-  private static readonly LANG_ICON_CLASS_LOOKUP: StringDictionary = {
-    'en': 'fi fi-gb',
-    'de': 'fi fi-de',
-    'fr': 'fi fi-fr',
-    'es': 'fi fi-es',
-    'it': 'fi fi-it',
-    'nl': 'fi fi-nl',
-    'pt': 'fi fi-pt'
-  };
-
-  private static AUDIO_LANG_MAP: { [key: string]: string } = {
-    en: 'UK English Male',
-    de: 'Deutsch Male',
-    fr: 'French Male',
-    es: 'Spanish Male',
-    it: 'Italian Male',
-    nl: 'Dutch Male',
-    pt: 'Portuguese Male',
-  };
-
   @ViewChild('popup') popup!: ImagePopupComponent;
 
   @Input() inputParams!: InputParams;
-  @Input() fromText!: string;
+  @Input() fromText!: string; 
 
   words: Word[] = [];
-  paginatedWords: Word[] = []; 
+  paginatedWords: Word[] = [];
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 0;
@@ -55,7 +36,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   title!: string;
   inputHistory: Array<[Word[], string]> = new Array<[Word[], string]>();
   loading: boolean = false;
-  langIconClassLookup: StringDictionary = {};
+  langIconClassLookup = LANG_ICON_CLASS_LOOKUP;
 
   private onDestroy$: Subject<void> = new Subject<void>();
 
@@ -67,7 +48,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
 
   // Lifecycle Hooks
   ngOnInit(): void {
-    this.langIconClassLookup = SearchComponent.LANG_ICON_CLASS_LOOKUP;
+   
   }
 
   ngAfterViewInit(): void {
@@ -174,6 +155,12 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     this.refreshView();
   }
 
+  setResults(results: Word[], title: string, inputParams: InputParams | null): void {
+    this.inputHistory = [];
+    this.title = title;        
+    this.processResults(results);    
+  }
+
   back(): void {
     if (this.inputHistory.length > 0) {
       const p = this.inputHistory.pop() as [Word[], string];
@@ -209,7 +196,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   getWords(word: Word, category: string, woi: (string | null) = null): void {
     this.inputHistory.push([this.words, this.title]);
     this.title = `${this.getWordLangTranslation('SEARCH.' + category.toUpperCase(), word.lang)}: ${word.name} (${this.getWordLangTranslation('SEARCH.' + word.pos.toUpperCase(), word.lang)})`;
-    this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, filterlang: this.inputParams.filterlang, category: category });
+    this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, availableLangs: this.inputParams.availableLangs, category: category });
     if (category == 'synonym') {
       const newWord = structuredClone(word) as Word;
       newWord.synonyms.push(newWord.name);
@@ -225,11 +212,10 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     return this.translationService.translate(key, lang);
   }
 
-
   getTranslation(word: Word, lang: string, woi: string): void {
     this.inputHistory.push([this.words, this.title]);
     this.title = `${this.getWordLangTranslation('SEARCH.TRANSLATION', lang)}: ${word.name} (${this.getWordLangTranslation('SEARCH.' + word.pos.toUpperCase(), word.lang)})`;
-    const serviceInputParams = Object.assign({ ili: word.ili, lang: lang, woi: woi });
+    const serviceInputParams = Object.assign({ ili: word.ili, lang: lang, woi: woi, availableLangs: this.inputParams.availableLangs });
     this.words = [];
     this.loading = true;
     this.wordnetService.getWords(serviceInputParams)
@@ -245,7 +231,10 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
 
   // Language and Example Operations
   getOtherLangs(word: Word): string[] {
-    return (this.inputParams.filterlang?.split(',') as string[]).filter(lang => lang !== word.lang);
+    return (this.inputParams.availableLangs)
+      .filter(lang => lang !==
+        word.lang && word.genericLanguageDescriptions.descriptionLookup[lang].split(',')
+          .filter(item => item).length > 0);
   }
 
   getLangItems(word: Word, lang: string): string[] {
@@ -269,7 +258,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     return words.some(x => x.pos === "Noun" || x.pos === "Verb");
   }
 
-  showImage(words: Word[]): void {
+  showImage(words: Word[], woi: string | undefined = undefined): void {
     const filteredWords = words.filter(x => x.pos === "Noun" || x.pos === "Verb");
 
     if (filteredWords.length > 0) {
@@ -283,12 +272,13 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
         maxLeafNodes: 5,
         synonymCount: 1,
         level: 2,
-        filterLangs: this.getMostFrequentValue(filteredWords, 'lang') as string,
-        lang: this.getMostFrequentValue(filteredWords, 'lang') as string,
+        availableLangs: this.inputParams.availableLangs,
+        filterLangs: [this.getMostFrequentValue(filteredWords, 'lang') as string],
         hierarchy: "True",
-        partWhole: "True"
+        partWhole: "True",
+        woi: woi,
       };
-      result.fileName = `hierarchy_partwhole${Date.now()}_${[result.lang].join('_')}_${result.level}_${result.maxLeafNodes}_${result.synonymCount}`;
+      result.fileName = `hierarchy_partwhole${Date.now()}_${[result.filterLangs[0]].join('_')}_${result.level}_${result.maxLeafNodes}_${result.synonymCount}`;
       this.popup.open(result);
     }
   }
@@ -311,7 +301,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     const endIndex = startIndex + this.itemsPerPage;
     this.paginatedWords = this.words.slice(startIndex, endIndex);
   }
-  
+
   getPageNumbers(): number[] {
     const totalPages = Math.ceil(this.words.length / this.itemsPerPage);
     const pageNumbers: number[] = [];
@@ -320,7 +310,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
     }
     return pageNumbers;
   }
-  
+
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;

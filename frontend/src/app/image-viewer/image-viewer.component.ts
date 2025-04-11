@@ -88,10 +88,11 @@ export class ImageViewerComponent implements OnInit, OnDestroy {
         level: params["level"] ? parseInt(params["level"]) : 2,
         maxLeafNodes: params["maxLeafNodes"] ? parseInt(params["maxLeafNodes"]) : 5,
         synonymCount: params["synonymCount"] ? parseInt(params["synonymCount"]) : 1,
-        filterLangs: params["filterLangs"] ? params["filterLangs"] as string : 'de',
-        lang: params["filterLangs"] ? params["filterLangs"] as string : 'de',
+        availableLangs: params["filterLangs"] ? params["filterLangs"] as string []: ['de'],
+        filterLangs: params["filterLangs"] ? params["filterLangs"] as string []: ['de'],
         partWhole: params["partWhole"] ? params["partWhole"] as string : "True",
-        hierarchy: params["hierarchy"] ? params["hierarchy"] as string : "True"
+        hierarchy: params["hierarchy"] ? params["hierarchy"] as string : "True",
+        woi: params["woi"] ? params["woi"] as string : undefined,
       };
       this.loadImage();
 

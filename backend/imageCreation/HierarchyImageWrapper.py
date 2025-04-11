@@ -25,14 +25,16 @@ def main(argv):
             print(WordEncoder().encode(data))
             return
 
-        synset = OwnSynsetWrapper(None, wn.synset(argvTransform['synsetId']))
+        loc_synset = wn.synset(argvTransform['synsetId'])        
+        synset = OwnSynsetWrapper(loc_synset.lexicon().language, loc_synset)
         level = int(argvTransform['level'])
         branch_count = int(argvTransform['maxLeafNodes'])
         filter_langs = argvTransform['filterLangs']
         ili = argvTransform['ili']
         synonym_count = int(argvTransform['synonymCount'])
+        woi = argvTransform['woi']
 
-        body = f'{buildgraph_body(synset, level, filter_langs, ili, synonym_count, branch_count, True)}{buildgraph_body(synset, level, filter_langs, ili, synonym_count, branch_count, False)}'
+        body = f'{buildgraph_body(synset, woi, level, filter_langs, ili, synonym_count, branch_count, True)}{buildgraph_body(synset, woi, level, filter_langs, ili, synonym_count, branch_count, False)}'
         hierarchy_template = '''strict digraph g {
             rankdir=BT            
             "{root0}" [fontname={font_name0} shape=box, style=bold]
@@ -41,7 +43,7 @@ def main(argv):
             {body}
         }'''
 
-        root = formatNodeDisplay(synset, filter_langs, ili, synonym_count)
+        root = formatNodeDisplay(synset, woi, filter_langs, ili, synonym_count)
         font_name = getFontName(filter_langs)
         writeOutput(hierarchy_template, root, body,
                     font_name, dotFilePath, pngFilePath, data)
@@ -54,7 +56,7 @@ def main(argv):
         print(WordEncoder().encode(data))
 
 
-def buildgraph_body(synset, level, filter_langs, ili, synonym_count, branch_count, build_up, edge_label=''):
+def buildgraph_body(synset, woi, level, filter_langs, ili, synonym_count, branch_count, build_up, edge_label=''):
     if level == 0:
         return ''
 
@@ -63,18 +65,18 @@ def buildgraph_body(synset, level, filter_langs, ili, synonym_count, branch_coun
     else:
         branches = synset.hyponyms()
 
-    root = formatNodeDisplay(synset, filter_langs, ili, synonym_count)
+    root = formatNodeDisplay(synset, woi, filter_langs, ili, synonym_count)
     entry = ''
     returnstr = ''
     for item in branches[:branch_count]:
         itemDisplay = formatNodeDisplay(
-            item, filter_langs, item.ili, synonym_count)
+            item, woi, filter_langs, item.ili, synonym_count)
         if build_up:
             entry = f'{entry}"{root}"->"{itemDisplay}" [label="{edge_label}"];'
         else:
             entry = f'{entry}"{itemDisplay}"->"{root}" [label="{edge_label}"];'
 
-        returnstr = f'{returnstr}{buildgraph_body(item, level-1, filter_langs, item.ili, synonym_count, branch_count, build_up, edge_label)}'
+        returnstr = f'{returnstr}{buildgraph_body(item, woi, level-1, filter_langs, item.ili, synonym_count, branch_count, build_up, edge_label)}'
     return f'{entry}{returnstr}'
 
 

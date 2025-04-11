@@ -30,7 +30,7 @@ export class WordnetService {
   constructor(private http: HttpClient) { }
 
   getWords(params: InputParams): Observable<Word[]> {
-    const query = `?woi=${params.woi || ''}&pos=${params.pos || ''}&lang=${params.lang || ''}&filterlang=${params.filterlang || ''}&lemma=${params.lemma || ''}&category=${params.category || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
+    const query = `?woi=${params.woi || ''}&pos=${params.pos || ''}&lang=${params.lang || ''}&filterlang=${params.availableLangs.join(',') || ''}&lemma=${params.lemma || ''}&category=${params.category || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
     return this.http.get<Word[]>(`${this.wordnet_url}words/${query}`, this.httpOptions)
       .pipe(
         tap(() => this.log('Fetched words')),
@@ -84,7 +84,7 @@ export class WordnetService {
   }
 
   getImage(params: ImageInputParams): Observable<string> {
-    const query = `?synsetId=${params.synsetId || ''}&fileName=${params.fileName || ''}&level=${params.level || ''}&filterLangs=${params.filterLangs || ''}&hierarchy=${params.hierarchy || ''}&partWhole=${params.partWhole || ''}&maxLeafNodes=${params.maxLeafNodes || ''}&synonymCount=${params.synonymCount || ''}`;
+    const query = `?synsetId=${params.synsetId || ''}&fileName=${params.fileName || ''}&level=${params.level || ''}&filterLangs=${params.filterLangs.join(',') || ''}&hierarchy=${params.hierarchy || ''}&partWhole=${params.partWhole || ''}&maxLeafNodes=${params.maxLeafNodes || ''}&synonymCount=${params.synonymCount || ''}&woi=${params.woi || ''}`;
     return this.http.get(`${this.wordnet_url}image/${query}`, { responseType: 'arraybuffer' })
       .pipe(
         map((imageArrayBuffer: ArrayBuffer) => {
