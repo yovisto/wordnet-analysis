@@ -69,4 +69,5 @@ export class AppComponent {
     this.allSelected = this.availableLangs.length === this.items.length;
     this.sharedService.changeAvailableLangs(this.availableLangs);
   }
+
 }

@@ -4,25 +4,31 @@
         <button mat-icon-button (click)="toggleMenu()" class="menu-button">
             <mat-icon>menu</mat-icon>
         </button>
-        <div *ngIf="menuOpen" class="menu-content floating-menu">
+        <div *ngIf="menuOpen" class="menu-content floating-menu">            
             <mat-checkbox 
                 [ngModel]="allSelected" 
                 (change)="toggleSelectAll($event)">
-                Select All
+                <strong>Select All</strong>
             </mat-checkbox>
             <div *ngFor="let item of items; trackBy: trackById">
                 <mat-checkbox 
                     [ngModel]="availableLangs.includes(item.id)" 
                     (change)="toggleSelection(item.id, $event)">
-                    {{ item.label }}
-                </mat-checkbox>
-            </div>      
+                    {{ item.label }}                    
+                </mat-checkbox>                
+            </div>                  
+            <div class="button-center">
+                <button mat-button (click)="toggleMenu()">Close</button>
+            </div>
         </div>
+        
     </div>
+    
 </div>
+
 <br />
 <div class="flag-container">
-    <span *ngFor="let flag of flagList" class="fi" [ngClass]="'fi-' + flag"></span>
+    <span *ngFor="let flag of flagList" class="fi" [ngClass]="'fi-' + flag"></span>    
 </div>
 
 <nav>

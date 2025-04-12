@@ -158,9 +158,20 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   setResults(results: Word[], title: string, inputParams: InputParams | null): void {
     this.inputHistory = [];
     this.title = title;        
+    this.inputParams = inputParams || this.inputParams;
     this.processResults(results);    
   }
 
+  setAvailableLangs(langs: string[]): void {
+    if (this.inputParams) {
+      this.inputHistory.push([this.words, this.title]);
+      this.inputParams.availableLangs = langs;
+      if (this.inputParams.category !== 'synonym') {
+        this.search();
+      }      
+    }            
+  }
+    
   back(): void {
     if (this.inputHistory.length > 0) {
       const p = this.inputHistory.pop() as [Word[], string];
@@ -215,18 +226,8 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   getTranslation(word: Word, lang: string, woi: string): void {
     this.inputHistory.push([this.words, this.title]);
     this.title = `${this.getWordLangTranslation('SEARCH.TRANSLATION', lang)}: ${word.name} (${this.getWordLangTranslation('SEARCH.' + word.pos.toUpperCase(), word.lang)})`;
-    const serviceInputParams = Object.assign({ ili: word.ili, lang: lang, woi: woi, availableLangs: this.inputParams.availableLangs });
-    this.words = [];
-    this.loading = true;
-    this.wordnetService.getWords(serviceInputParams)
-      .pipe(takeUntil(this.onDestroy$))
-      .subscribe({
-        next: (results: Word[]) => {
-          this.processResults(results);
-        },
-        error: (err: any) => this.handleError(err, 'getTranslation'),
-        complete: () => this.loading = false
-      });
+    this.inputParams = Object.assign({ ili: word.ili, lang: lang, woi: woi, availableLangs: this.inputParams.availableLangs });
+    this.search();    
   }
 
   // Language and Example Operations

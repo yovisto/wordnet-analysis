@@ -31,7 +31,9 @@ export class SearchWrapperComponent implements OnDestroy {
   ngOnInit(): void {
     this.subscription = this.sharedService.currentMessage.subscribe((message: string[]) => {
       this.availableLangs = message;
-      this.searchComponent.setResults([], '', null);
+      if (this.searchComponent) {       
+        this.searchComponent.setAvailableLangs(this.availableLangs);
+      }
     });
   }
 
