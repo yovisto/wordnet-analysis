@@ -39,7 +39,11 @@
         <mat-expansion-panel *ngFor="let word of paginatedWords; first as isFirst" [expanded]="isFirst">
             <mat-expansion-panel-header>
                 <mat-panel-title>
-                    <span [class]="langIconClassLookup[word.lang]"></span>
+                    <span [class]="langIconClassLookup[word.lang] || ''">
+                        <ng-container *ngIf="!langIconClassLookup[word.lang]">
+                            <strong>{{word.lang}}</strong>
+                        </ng-container>
+                    </span>
                     <span class="span-padding">{{ word.name }} ({{ getWordLangTranslation('SEARCH.' +
                         word.pos.toUpperCase(), word.lang) }})</span>
                     <span>
@@ -70,7 +74,11 @@
             <!-- Translations -->
             <ul>
                 <li *ngFor="let lang of getOtherLangs(word)">
-                    <span [class]="langIconClassLookup[lang]"></span>
+                    <span [class]="langIconClassLookup[lang] || ''">
+                        <ng-container *ngIf="!langIconClassLookup[lang]">
+                            <strong>{{lang}}</strong>
+                        </ng-container>
+                    </span>                    
                     <span class="span-padding">
                         <ng-container *ngFor="let translation of getLangItems(word, lang); let i = index">
                             <a (click)="getTranslation(word, lang, translation)">

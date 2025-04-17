@@ -26,10 +26,7 @@ export const LANG_ICON_CLASS_LOOKUP: { [key: string]: string } = {
   ko: 'fi fi-kr', // Korean
   arb: 'fi fi-eg', // Arabic (Egyptian flag)
   he: 'fi fi-il', // Hebrew
-  is: 'fi fi-is', // Icelandic
-  ca: 'fi fi-es', // Catalan (Spain flag)
-  eu: 'fi fi-es', // Basque (Spain flag)
-  gl: 'fi fi-es', // Galician (Spain flag)
+  is: 'fi fi-is', // Icelandic  
   sl: 'fi fi-si', // Slovenian
   th: 'fi fi-th', // Thai
   id: 'fi fi-id', // Indonesian
@@ -37,6 +34,7 @@ export const LANG_ICON_CLASS_LOOKUP: { [key: string]: string } = {
   fa: 'fi fi-ir', // Farsi (Iran flag)
   hr: 'fi fi-hr', // Croatian
   sq: 'fi fi-al', // Albanian
+  ua: 'fi fi-ua', // Ukrainian
 };
 
 export const LANGUAGEMAPDESCRIPTIONS: { [key: string]: string } = {

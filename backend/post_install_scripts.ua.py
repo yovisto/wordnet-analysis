@@ -9,21 +9,10 @@ import pandas as pd
 wn.download('ewn:2020')
 wn.remove('ewn:2020')
 
-# EU_LANGS (['en', 'de', 'fr', 'es', 'it', 'nl', 'pt']) have more complete WordNets and is downloaded from the specified URL 
-# (even though more minimal variants are also available from the official Open Multilingual Wordnet website)
 EU_DOWNLOAD_URI = 'https://github.com/pssvlng/open-european-wordnets-{type}/raw/main/{lang}_{type}.zip'
-# Available options for EU_LANGS: ['en', 'de', 'fr', 'es', 'it', 'nl', 'pt']
-# For the application to work, at least 'en' is needed (which can be filtered out in the front-end settings if desired)
-# i.e. EU_LANGS = ['en']
 EU_LANGS = ['en']
-
-# Add language codes that are available on the Open Multiliual WordNet Website, e.g. 'ro', 'da', 'sv', etc.
 OMW_LANG = []
-
-# Add the languages you want to download that is in the Open Multilingual Wordnet Format
-# but not listed on the official website (must be a zip file)
-# e.g. OTHER_URI = ['https://github.com/pssvlng/open-afrikaans-wordnet/raw/main/OAfrikaansNet.zip']
-OTHER_URI = []
+OTHER_URI = ['https://github.com/pssvlng/ua-wordnet/raw/refs/heads/master/uaWordNet.zip']
 
 df = pd.DataFrame({'lang': EU_LANGS})
 df['download_status'] = False

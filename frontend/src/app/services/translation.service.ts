@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, tap } from 'rxjs';
+import { forkJoin, Observable, of, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AppConfig } from '../config/app-config';
 
 @Injectable({
@@ -17,6 +18,10 @@ export class TranslationService {
       this.http.get(`/assets/i18n/${lang}.json`).pipe(
         tap((data) => {
           this.translations[lang] = data;
+        }),
+        catchError((error) => {
+          console.error(`Error loading translations for language: ${lang}`, error);
+          return of({}); 
         })
       )
     );

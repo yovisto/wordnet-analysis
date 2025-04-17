@@ -14,7 +14,7 @@
                 <mat-checkbox 
                     [ngModel]="availableLangs.includes(item.id)" 
                     (change)="toggleSelection(item.id, $event)">
-                    {{ item.label }}                    
+                    {{ item.label ? item.label : item.id }}                    
                 </mat-checkbox>                
             </div>                  
             <div class="button-center">
@@ -28,7 +28,11 @@
 
 <br />
 <div class="flag-container">
-    <span *ngFor="let flag of flagList" class="fi" [ngClass]="'fi-' + flag"></span>    
+    <span *ngFor="let flag of flagList" class="fi" [ngClass]="langIconClassLookup[flag] ? langIconClassLookup[flag] : ''">
+        <ng-container *ngIf="!langIconClassLookup[flag]">
+            <strong>{{flag}}</strong>
+        </ng-container>
+    </span>    
 </div>
 
 <nav>

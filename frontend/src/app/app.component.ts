@@ -1,6 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { AppConfig } from './config/app-config';
-import { LANGUAGEMAPDESCRIPTIONS } from './constants/lang-icon-lookup';
+import { LANG_ICON_CLASS_LOOKUP, LANGUAGEMAPDESCRIPTIONS } from './constants/lang-icon-lookup';
 import { SharedService } from './services/shared.service';
 
 interface CheckboxItem {
@@ -17,7 +17,8 @@ export class AppComponent {
   title = AppConfig.title;
   flagList = AppConfig.flagList;
   availableLangs = AppConfig.availableLangs;
-
+  langIconClassLookup = LANG_ICON_CLASS_LOOKUP;
+  
   items: CheckboxItem[] = AppConfig.availableLangs.map((lang) => {
     return {
       id: lang,
