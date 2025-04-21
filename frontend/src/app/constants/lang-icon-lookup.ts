@@ -57,6 +57,7 @@ export const LANGUAGEMAPDESCRIPTIONS: { [key: string]: string } = {
   "id": "Indonesian",
   "it": "Italian",
   "jp": "Japanese",
+  "ja": "Japanese",
   "nb": "Norwegian",
   "nl": "Dutch",
   "pl": "Polish",
@@ -72,6 +73,12 @@ export const LANGUAGEMAPDESCRIPTIONS: { [key: string]: string } = {
   "lt": "Lithuanian",
   "fas": "Persian",
   "ua": "Ukrainian",
+  "zu": "Zulu",
+  "xh": "Xhosa",
+  "st": "Sesotho",
+  "ts": "Tsonga",
+  "nso": "Northern Sotho",
+  "tn": "Tswana",
 };
 
 

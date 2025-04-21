@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap, timeout } from 'rxjs/operators';
@@ -27,7 +28,9 @@ export class WordnetService {
     })
   };
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private toastr: ToastrService) { 
+    this.toastr.toastrConfig.positionClass = 'toast-bottom-right';
+  }
 
   getWords(params: InputParams): Observable<Word[]> {
     const query = `?woi=${params.woi || ''}&pos=${params.pos || ''}&lang=${params.lang || ''}&filterlang=${params.availableLangs.join(',') || ''}&lemma=${params.lemma || ''}&category=${params.category || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
@@ -69,7 +72,7 @@ export class WordnetService {
 
 
   getRelated(params: InputParams): Observable<Word[]> {
-    const query = `?lang=${params.lang || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
+    const query = `?lang=${params.lang || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}&filterlang=${params.availableLangs.join(',') || ''}`;
     return this.http.get<Word[]>(`${this.wordnet_url}related/${query}`, this.httpOptions)
       .pipe(
         tap(_ => this.log('fetched related')),
@@ -100,8 +103,13 @@ export class WordnetService {
 
   getAudio(text: string, lang: string): Observable<Blob> {
     const query = `?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}`;
-    return this.http.get(`${this.wordnet_url}tts/${query}`, { responseType: 'blob' });
-    
+    return this.http.get(`${this.wordnet_url}tts/${query}`, { responseType: 'blob' })
+      .pipe(
+        catchError(error => {
+          this.toastr.error('Audio for this language unavailable or not supported', 'Error');
+          return this.handleError<Blob>('getAudio')(error);
+        })
+      );
   }  
 
   getExampleSentences(word_key: string): Observable<string[]> {

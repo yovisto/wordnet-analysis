@@ -72,6 +72,7 @@ AUDIO_LANG_MAP = {
     'nya': 'ny',
     'mlg': 'mg',
     'swa': 'sw',
+    'ua': 'uk',
 }
 
 ABBREVIATIONS = {
@@ -131,4 +132,23 @@ ABBREVIATIONS = {
         "a": "bmw.",
         "s": "bnw."
     }
+}
+
+WIKTIONARY_POS = {
+    "en": {
+        "Verb": "Verb",
+        "Noun": "Noun",
+        "Adverb": "Adverb",
+        "Adjective": "Adjective",        
+    },
+    "de": {
+        "Verb": "Verb",
+        "Noun": "Substantiv",
+        "Adverb": "Adverb",
+        "Adjective": "Adjektiv",        
+    },    
+}
+
+WIKTIONARY_LANG_MAP = {
+    "ua": "uk",
 }

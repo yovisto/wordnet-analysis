@@ -97,10 +97,8 @@
             </span>
 
             <!-- LOD View -->
-            <span *ngIf="word.lang === 'en'">
-                <a [title]="getWordLangTranslation('SEARCH.LOD_VIEW', word.lang)"
-                    href="https://edu.yovisto.com/resource/wordnet/en/id/oewn-{{ word.offset }}-{{ word.wordKey.split('.')[1] }}"
-                    target="_blank">
+            <span *ngIf="hasLodViews(word)">
+                <a [title]="getWordLangTranslation('SEARCH.LOD_VIEW', word.lang)" (click)="openLodViews(word.lodViews[word.name])">
                     <mat-icon>share</mat-icon>
                 </a>
             </span>

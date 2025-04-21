@@ -25,6 +25,7 @@ import { SearchWrapperComponent } from './search-wrapper/search-wrapper.componen
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { ToastrModule } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 import { TranslationService } from './services/translation.service';
 
@@ -58,6 +59,12 @@ export function preloadTranslationsFactory(translationService: TranslationServic
     MatDialogModule,
     MatIconModule,  
     MatCheckboxModule,
+    BrowserAnimationsModule, // Required for ToastrModule
+    ToastrModule.forRoot({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

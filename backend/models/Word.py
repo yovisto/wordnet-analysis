@@ -7,5 +7,6 @@ class Word(BaseWord):
         self.example = ''        
         self.LinguisticCounter = None
         self.LanguageDescriptions = None
-        self.synonyms = ''        
+        self.synonyms = ''
+        self.LodViews = {}        
             

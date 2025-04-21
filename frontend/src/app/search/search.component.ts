@@ -183,7 +183,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   // Word Operations
   getRelatedWords(word: Word): void {
     if (word.relatedSynsets.length == 0) {
-      const serviceInputParams = Object.assign({ ili: word.ili, lang: word.lang, wordkey: word.wordKey });
+      const serviceInputParams = Object.assign({ ili: word.ili, lang: word.lang, availableLangs: this.inputParams.availableLangs, wordkey: word.wordKey });
       this.wordnetService.getRelated(serviceInputParams)
         .pipe(takeUntil(this.onDestroy$))
         .subscribe({
@@ -257,6 +257,16 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
 
   hasNounOrVerb(words: Word[]): boolean {
     return words.some(x => x.pos === "Noun" || x.pos === "Verb");
+  }
+
+  hasLodViews(word: Word): boolean {
+    return Object.keys(word.lodViews).length > 0;
+  }
+
+  openLodViews(lodViews: string[]): void {
+    lodViews.forEach(url => {
+      window.open(url, '_blank');
+    });
   }
 
   showImage(words: Word[], woi: string | undefined = undefined): void {

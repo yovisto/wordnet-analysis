@@ -12,7 +12,9 @@ from flask_cors import cross_origin
 
 from passivlingo_dictionary.Dictionary import Dictionary
 from passivlingo_dictionary.models.SearchParam import SearchParam
+from config import getWordNetEmbeddings
 from encoders.WordEncoder import WordEncoder
+from helpers.CommonHelper import CommonHelper
 from helpers.Constants import AUDIO_LANG_MAP, POS_MAPPINGS
 from imageCreation.CombinedImageWrapper import main
 import wn
@@ -22,7 +24,7 @@ app = Flask(__name__)
 # Load model and data
 MODEL = SentenceTransformer("all-MiniLM-L6-v2", device='cpu')
 DF = pd.read_csv('wordnet_txt_embeddings_input.csv', sep='\t', header=0, index_col=None)
-EMBEDDING_ARR = MODEL.encode(DF['text'])
+EMBEDDING_ARR = getWordNetEmbeddings()
 
 def error_response(message: str, status: int = 400) -> Response:
     return Response(response=f'{{"error": "{message}"}}', status=status, mimetype="application/json")
@@ -59,6 +61,7 @@ def words():
         param.filterLang = filterLang        
         param.ili = ili
         results = dict_obj.findWords(param)
+        results = CommonHelper.getLodViews(results)
         return Response(WordEncoder().encode(results), mimetype='application/json')
     except ValueError as err:
         return error_response(str(err), status=404)
@@ -93,7 +96,8 @@ def get_related():
     wordkey = request.args.get('wordkey')
     ili = request.args.get('ili')
     lang = request.args.get('lang')
-
+    filterLang = request.args['filterlang']
+    
     if None in [ili, lang]:
         return error_response("Invalid argument list: 'ili' and 'lang' are required", status=404)
 
@@ -113,11 +117,14 @@ def get_related():
         dict_obj = Dictionary()
         param = SearchParam()
         param.lang = lang  
+        param.filterLang = filterLang        
         for val in DF['ili'].iloc[idist_arr_sorted[:10 + len(exclusions)]].values:
             if val not in exclusions:
                 param.ili = val
-                word = dict_obj.findWords(param)[0]
-                final_results.append(word)
+                words = dict_obj.findWords(param)
+                if len(words) != 0:                        
+                    final_result = CommonHelper.getLodViews([words[0]])
+                    final_results.extend(final_result)
                 if len(final_results) == 10:
                     break
 

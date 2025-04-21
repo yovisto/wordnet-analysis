@@ -2,6 +2,8 @@
 from urllib.parse import unquote
 from nltk.corpus import wordnet as wn
 
+from helpers.Constants import WIKTIONARY_LANG_MAP, WIKTIONARY_POS
+
 class CommonHelper:    
             
     @classmethod
@@ -58,3 +60,21 @@ class CommonHelper:
                 result = result[:(len(e)*-1)]
 
         return result
+
+    @classmethod
+    def getLodViews(cls, results):
+        for result in results:
+            lodViews = {}
+            if result.lang in ['en', 'de', 'fr', 'es', 'it', 'nl', 'pt', 'af', 'ro', 'ua']:
+                lemmas = [result.name] + result.synonyms
+                for lemma in lemmas:
+                    if result.lang == 'en':
+                        wiktionary_uri = f"https://en.wiktionary.org/wiki/{lemma}#{WIKTIONARY_POS[result.lang][result.pos]}"
+                    else:
+                        lang = WIKTIONARY_LANG_MAP[result.lang] if result.lang in WIKTIONARY_LANG_MAP else result.lang
+                        wiktionary_uri = f"https://{lang}.wiktionary.org/wiki/{lemma}"
+                    wiktionary_uri = wiktionary_uri.replace(" ", "_")    
+                    lodViews[lemma] = [wiktionary_uri]
+            result.lodViews = lodViews
+
+        return results
